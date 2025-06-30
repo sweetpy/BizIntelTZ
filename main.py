@@ -10,6 +10,9 @@ import io
 import random
 import datetime
 
+from database import Database
+from crawler import crawl_site
+
 app = FastAPI(title="BizIntelTZ")
 
 # Add CORS middleware
@@ -30,6 +33,8 @@ claims = []
 media_store = {}
 analytics = []
 leads = []
+
+db = Database()
 
 class Business(BaseModel):
     id: str
@@ -188,13 +193,14 @@ async def create_business(biz: BusinessCreate):
         bi_id = generate_bi_id()
     
     new_biz = Business(
-        id=biz_id, 
+        id=biz_id,
         bi_id=bi_id,
         verified=False,
         claimed=False,
         **biz.dict()
     )
     businesses[biz_id] = new_biz
+    db.add_business(new_biz)
     return new_biz
 
 @app.put("/business/{biz_id}", response_model=Business)
@@ -206,12 +212,14 @@ async def update_business(biz_id: str, biz: BusinessUpdate):
     for k, v in update_data.items():
         setattr(existing, k, v)
     businesses[biz_id] = existing
+    db.add_business(existing)
     return existing
 
 @app.delete("/business/{biz_id}")
 async def delete_business(biz_id: str):
     if biz_id in businesses:
         del businesses[biz_id]
+        db.delete_business(biz_id)
         return {"status": "deleted"}
     raise HTTPException(status_code=404, detail="Business not found")
 
@@ -228,16 +236,23 @@ async def scrape(source: str = Form(...), region: Optional[str] = Form(None)):
             
         name = f"{source.title()} Biz {random.randint(1, 1000)}"
         new_biz = Business(
-            id=biz_id, 
-            name=name, 
+            id=biz_id,
+            name=name,
             bi_id=bi_id,
             region=region,
             verified=False,
             claimed=False
         )
         businesses[biz_id] = new_biz
+        db.add_business(new_biz)
         generated.append(new_biz)
     return {"status": "Scraped", "added": len(generated)}
+
+
+@app.post("/crawl")
+async def crawl(start_url: str = Form(...), pages: int = Form(5)):
+    added = crawl_site(start_url, db, max_pages=pages)
+    return {"status": "crawl_complete", "added": added}
 
 @app.get("/export")
 async def export_data():
@@ -271,6 +286,7 @@ async def get_profile(biz_id: str):
 @app.post("/review")
 async def post_review(review: Review):
     reviews.setdefault(review.business_id, []).append(review)
+    db.add_review(review)
     return {"status": "Review added"}
 
 @app.get("/reviews/{biz_id}", response_model=List[Review])
@@ -294,6 +310,7 @@ async def claim_business(claim: Claim):
     if biz:
         biz.claimed = True
         businesses[claim.business_id] = biz
+    db.add_claim(claim)
     return {"status": "Claim submitted"}
 
 @app.get("/claims", response_model=List[Claim])
@@ -307,6 +324,8 @@ async def approve_claim(index: int, token: str = Depends(oauth2_scheme)):
     
     claim = claims[index]
     claim.approved = True
+
+    db.approve_claim(claim)
     
     # Mark business as verified when claim is approved
     biz = businesses.get(claim.business_id)
@@ -320,6 +339,7 @@ async def approve_claim(index: int, token: str = Depends(oauth2_scheme)):
 @app.post("/track")
 async def track(event: AnalyticsEvent):
     analytics.append(event)
+    db.add_event(event)
     return {"status": "Event logged"}
 
 @app.get("/analytics")
@@ -331,11 +351,13 @@ async def get_analytics():
 @app.post("/upload-media")
 async def upload_media(biz_id: str = Form(...), file: UploadFile = File(...)):
     media_store.setdefault(biz_id, []).append(file.filename)
+    db.add_media(biz_id, file.filename)
     return {"status": "File uploaded", "filename": file.filename}
 
 @app.post("/lead")
 async def create_lead(lead: Lead):
     leads.append(lead)
+    db.add_lead(lead)
     return {"status": "Lead stored"}
 
 @app.get("/leads", response_model=List[Lead])
