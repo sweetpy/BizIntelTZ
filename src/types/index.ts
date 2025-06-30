@@ -67,6 +67,16 @@ export interface AdminStats {
   total_businesses: number
 }
 
+export interface CrawlerStats {
+  total_runs: number
+  total_pages: number
+  total_businesses: number
+  last_run: string | null
+  avg_pages_per_run: number
+  avg_businesses_per_run: number
+  uptime_seconds: number
+}
+
 export interface SearchFilters {
   q?: string
   region?: string
