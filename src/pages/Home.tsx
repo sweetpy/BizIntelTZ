@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, TrendingUp, Users, Award, Building2, ArrowRight, Star, Plus, Trophy, Crown, Eye, Target, ChevronRight, BarChart3, Database, Shield, ShieldCheck, Zap, Globe, Brain, Lock, CheckCircle, AlertTriangle, Clock, Activity, PieChart, LineChart, Briefcase, FileText, DollarSign } from 'lucide-react'
 import { searchBusinesses, getAnalytics, getLeaderboardData } from '../utils/api'
 import { Business, AnalyticsData, LeaderboardData } from '../types'
 import BusinessCard from '../components/BusinessCard'
 
+// Performance optimized component with memoization
 const Home: React.FC = () => {
   const [featuredBusinesses, setFeaturedBusinesses] = useState<Business[]>([])
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
@@ -14,13 +15,13 @@ const Home: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [realTimeMetrics, setRealTimeMetrics] = useState<any>(null)
 
-  // Mock enterprise-grade data
-  const mockAnalytics: AnalyticsData = {
+  // Memoized mock data for better performance
+  const mockAnalytics: AnalyticsData = useMemo(() => ({
     views: 2150000,
     clicks: 1340000
-  }
+  }), [])
 
-  const mockLeaderboardData: LeaderboardData = {
+  const mockLeaderboardData: LeaderboardData = useMemo(() => ({
     overall_leaders: [
       {
         id: "ent-1",
@@ -87,6 +88,50 @@ const Home: React.FC = () => {
         premium: true,
         verified: true,
         claimed: true
+      },
+      {
+        id: "ent-4",
+        name: "Azam FC",
+        bi_id: "BIZ-TZ-20241201-0004",
+        region: "Dar es Salaam",
+        sector: "Sports & Entertainment",
+        digital_score: 87,
+        rank: 4,
+        previous_rank: 5,
+        rank_change: 1,
+        views_count: 76230,
+        reviews_count: 987,
+        average_rating: 4.3,
+        badges: [],
+        buzz_score: 84,
+        market_share_percentage: 18.2,
+        sentiment_score: 89,
+        growth_rate: 15.3,
+        premium: true,
+        verified: true,
+        claimed: true
+      },
+      {
+        id: "ent-5",
+        name: "Tanzania Breweries Limited",
+        bi_id: "BIZ-TZ-20241201-0005",
+        region: "Dar es Salaam",
+        sector: "Manufacturing",
+        digital_score: 85,
+        rank: 5,
+        previous_rank: 4,
+        rank_change: -1,
+        views_count: 68920,
+        reviews_count: 1543,
+        average_rating: 4.2,
+        badges: [],
+        buzz_score: 82,
+        market_share_percentage: 52.4,
+        sentiment_score: 80,
+        growth_rate: 4.8,
+        premium: true,
+        verified: true,
+        claimed: true
       }
     ],
     regional_leaders: [],
@@ -96,9 +141,9 @@ const Home: React.FC = () => {
     most_viewed: [],
     top_rated: [],
     recent_badge_winners: []
-  }
+  }), [])
 
-  const enterpriseMetrics = {
+  const enterpriseMetrics = useMemo(() => ({
     totalBusinesses: '250,000+',
     verifiedEntities: '180,000+',
     monthlyVerifications: '45,000+',
@@ -106,747 +151,735 @@ const Home: React.FC = () => {
     regions: '31',
     sectors: '120+',
     lastUpdate: new Date().toLocaleTimeString(),
-    uptime: '99.97%'
-  }
+    uptime: '99.97%',
+    responseTime: '< 200ms',
+    accuracy: '99.8%'
+  }), [])
 
-  useEffect(() => {
-    loadData()
-    
-    // Set up real-time updates for enterprise metrics
-    const interval = setInterval(() => {
-      setRealTimeMetrics({
-        ...enterpriseMetrics,
-        lastUpdate: new Date().toLocaleTimeString()
-      })
-    }, 30000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  const loadData = async () => {
+  // Optimized data loading with error boundaries
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
       
-      // Load with fallback to mock data for demo
-      try {
-        const businesses = await searchBusinesses({ premium: true })
-        setFeaturedBusinesses(businesses.length > 0 ? businesses.slice(0, 6) : [])
-      } catch (err) {
-        setFeaturedBusinesses([])
-      }
+      const promises = []
+      
+      // Load featured businesses with fallback
+      promises.push(
+        searchBusinesses({ premium: true }).catch(() => [])
+      )
+      
+      // Load analytics with fallback
+      promises.push(
+        getAnalytics().catch(() => mockAnalytics)
+      )
+      
+      // Load leaderboard with fallback
+      promises.push(
+        getLeaderboardData().catch(() => mockLeaderboardData)
+      )
 
-      try {
-        const analyticsData = await getAnalytics()
-        setAnalytics(analyticsData)
-      } catch (err) {
-        setAnalytics(mockAnalytics)
-      }
-
-      try {
-        const leaderboard = await getLeaderboardData()
-        setLeaderboardData(leaderboard)
-      } catch (err) {
-        setLeaderboardData(mockLeaderboardData)
-      }
+      const [businesses, analyticsData, leaderboard] = await Promise.all(promises)
+      
+      setFeaturedBusinesses(Array.isArray(businesses) ? businesses.slice(0, 6) : [])
+      setAnalytics(analyticsData || mockAnalytics)
+      setLeaderboardData(leaderboard || mockLeaderboardData)
 
     } catch (error) {
       console.error('Error loading data:', error)
       setAnalytics(mockAnalytics)
       setLeaderboardData(mockLeaderboardData)
+      setError('Some features may be limited due to connectivity issues')
     } finally {
       setIsLoading(false)
       setRealTimeMetrics(enterpriseMetrics)
     }
-  }
+  }, [mockAnalytics, mockLeaderboardData, enterpriseMetrics])
 
-  const handleSearch = (e: React.FormEvent) => {
+  useEffect(() => {
+    loadData()
+    
+    // Set up real-time updates with optimized intervals
+    const interval = setInterval(() => {
+      setRealTimeMetrics((prev: any) => ({
+        ...prev,
+        lastUpdate: new Date().toLocaleTimeString()
+      }))
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [loadData])
+
+  const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`
     }
-  }
+  }, [searchQuery])
+
+  // Loading skeleton component
+  const LoadingSkeleton = React.memo(() => (
+    <div className="animate-pulse">
+      <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+      <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+      <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+    </div>
+  ))
 
   return (
-    <div className="space-y-20">
-      {/* HERO SECTION - ENTERPRISE PROFESSIONAL */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent"></div>
-        
-        {/* Professional background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-indigo-600/20"></div>
-          <div className="grid grid-cols-12 gap-4 h-full">
-            {[...Array(60)].map((_, i) => (
-              <div key={i} className="bg-white/5 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }}></div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div className="space-y-6">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="flex items-center space-x-2 bg-blue-600/20 backdrop-blur-sm rounded-full px-4 py-2">
-                    <Shield className="h-5 w-5 text-blue-400" />
-                    <span className="text-blue-300 font-semibold">Enterprise Business Intelligence</span>
-                  </div>
-                </div>
-                
-                <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight">
-                  Tanzania's Premier
-                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
-                    Business Intelligence
-                  </span>
-                  <span className="block">Platform</span>
-                </h1>
-                
-                <p className="text-xl text-slate-300 leading-relaxed">
-                  Comprehensive data intelligence covering <strong className="text-white">250,000+ verified business entities</strong> 
-                  across Tanzania. Advanced analytics, verification systems, and competitive intelligence 
-                  trusted by leading financial institutions and enterprises.
-                </p>
-              </div>
-              
-              {/* Enterprise Value Props */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <div className="text-2xl font-bold text-white">{realTimeMetrics?.totalBusinesses || '250,000+'}</div>
-                  <div className="text-sm text-slate-300">Verified Entities</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <div className="text-2xl font-bold text-white">{realTimeMetrics?.uptime || '99.97%'}</div>
-                  <div className="text-sm text-slate-300">System Uptime</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <div className="text-2xl font-bold text-white">{realTimeMetrics?.monthlyVerifications || '45,000+'}</div>
-                  <div className="text-sm text-slate-300">Monthly Verifications</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                  <div className="text-2xl font-bold text-white">{realTimeMetrics?.dataPoints || '50M+'}</div>
-                  <div className="text-sm text-slate-300">Data Points</div>
-                </div>
-              </div>
-              
-              {/* Search Interface */}
-              <form onSubmit={handleSearch} className="mt-8">
-                <div className="relative group">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Search business entities, BI IDs, or sectors..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-32 py-4 text-lg rounded-lg border border-slate-600 bg-white/10 backdrop-blur-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-                  >
-                    Search
-                  </button>
-                </div>
-              </form>
-              
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mt-8">
-                <Link
-                  to="/verify"
-                  className="btn bg-blue-600 text-white hover:bg-blue-700 px-8 py-4 text-lg font-semibold flex items-center justify-center space-x-2"
-                >
-                  <Shield className="h-5 w-5" />
-                  <span>Verify BI ID</span>
-                </Link>
-                <Link
-                  to="/rankings"
-                  className="btn bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 px-8 py-4 text-lg font-semibold flex items-center justify-center space-x-2"
-                >
-                  <BarChart3 className="h-5 w-5" />
-                  <span>View Rankings</span>
-                </Link>
-              </div>
+    <>
+      {/* SEO Meta Tags */}
+      <title>BizIntelTZ - Tanzania's Premier Business Intelligence Platform | 250,000+ Verified Entities</title>
+      <meta name="description" content="Access comprehensive business intelligence for 250,000+ verified Tanzanian entities. Enterprise-grade verification, analytics, and competitive intelligence trusted by leading financial institutions." />
+      <meta name="keywords" content="Tanzania business intelligence, BI ID verification, business data, KYB compliance, enterprise analytics, financial institutions" />
+      <meta property="og:title" content="BizIntelTZ - Tanzania's Premier Business Intelligence Platform" />
+      <meta property="og:description" content="Enterprise-grade business intelligence covering 250,000+ verified entities across Tanzania" />
+      <meta property="og:type" content="website" />
+
+      <div className="space-y-20">
+        {/* Error Banner */}
+        {error && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mx-4 sm:mx-6 lg:mx-8">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              <p className="text-orange-800 text-sm">{error}</p>
             </div>
+          </div>
+        )}
 
-            {/* Live Intelligence Dashboard */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-white">Live Intelligence Dashboard</h3>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-slate-300">Live</span>
+        {/* HERO SECTION - ENTERPRISE PROFESSIONAL */}
+        <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 overflow-hidden" role="banner">
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent"></div>
+          
+          {/* Optimized background pattern */}
+          <div className="absolute inset-0 opacity-10" aria-hidden="true">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-indigo-600/20"></div>
+            <div className="grid grid-cols-12 gap-4 h-full">
+              {[...Array(24)].map((_, i) => (
+                <div key={i} className="bg-white/5 animate-pulse" style={{ animationDelay: `${i * 0.2}s` }}></div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div className="space-y-8">
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="flex items-center space-x-2 bg-blue-600/20 backdrop-blur-sm rounded-full px-4 py-2">
+                      <Shield className="h-5 w-5 text-blue-400" />
+                      <span className="text-blue-300 font-semibold">Enterprise Business Intelligence</span>
+                    </div>
+                  </div>
+                  
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                    Tanzania's Premier
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                      Business Intelligence
+                    </span>
+                    <span className="block">Platform</span>
+                  </h1>
+                  
+                  <p className="text-xl text-slate-300 leading-relaxed">
+                    Comprehensive data intelligence covering <strong className="text-white">250,000+ verified business entities</strong> 
+                    across Tanzania. Advanced analytics, verification systems, and competitive intelligence 
+                    trusted by leading financial institutions and enterprises.
+                  </p>
                 </div>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-400">{analytics?.views.toLocaleString() || '2.15M'}</div>
-                    <div className="text-sm text-slate-400">Monthly Queries</div>
+                
+                {/* Enterprise Value Props */}
+                <div className="grid grid-cols-2 gap-4" role="group" aria-label="Platform Statistics">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/15 transition-colors">
+                    <div className="text-2xl font-bold text-white">{realTimeMetrics?.totalBusinesses || '250,000+'}</div>
+                    <div className="text-sm text-slate-300">Verified Entities</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-400">{analytics?.clicks.toLocaleString() || '1.34M'}</div>
-                    <div className="text-sm text-slate-400">Verifications</div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/15 transition-colors">
+                    <div className="text-2xl font-bold text-white">{realTimeMetrics?.uptime || '99.97%'}</div>
+                    <div className="text-sm text-slate-300">System Uptime</div>
                   </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-300">System Status</span>
-                    <span className="text-green-400 font-semibold">Operational</span>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/15 transition-colors">
+                    <div className="text-2xl font-bold text-white">{realTimeMetrics?.monthlyVerifications || '45,000+'}</div>
+                    <div className="text-sm text-slate-300">Monthly Verifications</div>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-300">Last Update</span>
-                    <span className="text-slate-300">{realTimeMetrics?.lastUpdate || 'Just now'}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-300">Data Coverage</span>
-                    <span className="text-blue-400">{realTimeMetrics?.regions || '31'} Regions</span>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 hover:bg-white/15 transition-colors">
+                    <div className="text-2xl font-bold text-white">{realTimeMetrics?.responseTime || '< 200ms'}</div>
+                    <div className="text-sm text-slate-300">API Response</div>
                   </div>
                 </div>
-
-                <div className="pt-4 border-t border-white/10">
+                
+                {/* Search Interface */}
+                <form onSubmit={handleSearch} className="mt-8" role="search">
+                  <div className="relative group">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" aria-hidden="true" />
+                    <input
+                      type="text"
+                      placeholder="Search business entities, BI IDs, or sectors..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-12 pr-32 py-4 text-lg rounded-lg border border-slate-600 bg-white/10 backdrop-blur-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      aria-label="Search business entities"
+                    />
+                    <button
+                      type="submit"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      aria-label="Search"
+                    >
+                      Search
+                    </button>
+                  </div>
+                </form>
+                
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 mt-8">
                   <Link
-                    to="/admin"
-                    className="w-full btn bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 border border-blue-500/30"
+                    to="/verify"
+                    className="btn bg-blue-600 text-white hover:bg-blue-700 px-8 py-4 text-lg font-semibold flex items-center justify-center space-x-2 transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
-                    Access Full Dashboard
+                    <Shield className="h-5 w-5" />
+                    <span>Verify BI ID</span>
+                  </Link>
+                  <Link
+                    to="/rankings"
+                    className="btn bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 px-8 py-4 text-lg font-semibold flex items-center justify-center space-x-2 transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/40"
+                  >
+                    <BarChart3 className="h-5 w-5" />
+                    <span>View Rankings</span>
                   </Link>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* TRUST INDICATORS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Trusted by Leading Organizations</h2>
-          <p className="text-xl text-gray-600">Powering business intelligence for banks, corporations, and government agencies</p>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center opacity-60">
-          {/* Placeholder for trusted organization logos */}
-          <div className="bg-gray-200 rounded-lg p-6 w-full h-16 flex items-center justify-center">
-            <span className="text-gray-500 font-semibold">Central Bank</span>
-          </div>
-          <div className="bg-gray-200 rounded-lg p-6 w-full h-16 flex items-center justify-center">
-            <span className="text-gray-500 font-semibold">CRDB Bank</span>
-          </div>
-          <div className="bg-gray-200 rounded-lg p-6 w-full h-16 flex items-center justify-center">
-            <span className="text-gray-500 font-semibold">Vodacom</span>
-          </div>
-          <div className="bg-gray-200 rounded-lg p-6 w-full h-16 flex items-center justify-center">
-            <span className="text-gray-500 font-semibold">Government</span>
-          </div>
-        </div>
-      </section>
-
-      {/* BI ID VERIFICATION SYSTEM */}
-      <section className="bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div className="space-y-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-blue-100 rounded-xl">
-                    <ShieldCheck className="h-8 w-8 text-blue-600" />
+              {/* Live Intelligence Dashboard */}
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-colors">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white">Live Intelligence Dashboard</h3>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-slate-300">Live</span>
                   </div>
-                  <h2 className="text-4xl font-bold text-gray-900">Business Intelligence ID System</h2>
                 </div>
                 
-                <p className="text-xl text-gray-600 leading-relaxed">
-                  Every business entity receives a unique, verifiable BI ID for secure identification 
-                  and verification. Essential for KYB compliance, due diligence, and risk assessment.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <Lock className="h-6 w-6 text-blue-600" />
-                    <h3 className="font-bold text-gray-900">Secure Verification</h3>
-                  </div>
-                  <p className="text-gray-600">Cryptographically secure IDs with real-time verification API for instant business validation.</p>
-                </div>
-                
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <Database className="h-6 w-6 text-green-600" />
-                    <h3 className="font-bold text-gray-900">Comprehensive Data</h3>
-                  </div>
-                  <p className="text-gray-600">Complete business profiles with ownership, financial, and operational intelligence data.</p>
-                </div>
-                
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <Clock className="h-6 w-6 text-orange-600" />
-                    <h3 className="font-bold text-gray-900">Real-Time Updates</h3>
-                  </div>
-                  <p className="text-gray-600">Continuous monitoring and updates ensure data accuracy and reliability for critical decisions.</p>
-                </div>
-                
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <Globe className="h-6 w-6 text-purple-600" />
-                    <h3 className="font-bold text-gray-900">API Integration</h3>
-                  </div>
-                  <p className="text-gray-600">Enterprise-grade APIs for seamless integration with your existing systems and workflows.</p>
-                </div>
-              </div>
-
-              <div className="pt-6">
-                <Link
-                  to="/verify"
-                  className="btn btn-primary text-lg px-8 py-4 flex items-center space-x-2 w-fit"
-                >
-                  <ShieldCheck className="h-5 w-5" />
-                  <span>Verify Business ID</span>
-                </Link>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
-              <div className="space-y-6">
-                <div className="text-center">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Sample BI ID Verification</h3>
-                  <div className="bg-blue-50 rounded-lg p-6 border-2 border-blue-200">
-                    <div className="text-sm text-blue-600 font-medium mb-2">Business Intelligence ID</div>
-                    <div className="text-2xl font-mono font-bold text-blue-900 mb-4">BIZ-TZ-20241201-0001</div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="text-left">
-                        <div className="text-gray-600">Entity:</div>
-                        <div className="font-semibold">Vodacom Tanzania Ltd</div>
-                      </div>
-                      <div className="text-left">
-                        <div className="text-gray-600">Status:</div>
-                        <div className="font-semibold text-green-600">✓ Verified</div>
-                      </div>
-                      <div className="text-left">
-                        <div className="text-gray-600">Sector:</div>
-                        <div className="font-semibold">Telecommunications</div>
-                      </div>
-                      <div className="text-left">
-                        <div className="text-gray-600">Region:</div>
-                        <div className="font-semibold">Dar es Salaam</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <span className="text-gray-700 font-medium">Verification Time</span>
-                    <span className="text-green-600 font-semibold">&lt; 200ms</span>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <span className="text-gray-700 font-medium">Data Accuracy</span>
-                    <span className="text-blue-600 font-semibold">99.8%</span>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <span className="text-gray-700 font-medium">Coverage</span>
-                    <span className="text-purple-600 font-semibold">National</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* MARKET INTELLIGENCE RANKINGS */}
-      {leaderboardData && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">Market Intelligence & Rankings</h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-              Real-time business performance analytics and competitive intelligence 
-              across all sectors and regions in Tanzania.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Market Leaders */}
-            <div className="lg:col-span-2">
-              <div className="card border border-gray-200">
-                <div className="p-8">
-                  <div className="flex items-center justify-between mb-8">
-                    <h3 className="text-2xl font-bold text-gray-900 flex items-center space-x-3">
-                      <Trophy className="h-6 w-6 text-blue-600" />
-                      <span>Market Leaders</span>
-                    </h3>
-                    <div className="text-sm text-gray-500">
-                      Updated: {realTimeMetrics?.lastUpdate || 'Live'}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    {leaderboardData.overall_leaders.slice(0, 5).map((business, index) => (
-                      <div
-                        key={business.id}
-                        className={`flex items-center justify-between p-6 rounded-xl border transition-all hover:shadow-md ${
-                          index === 0 
-                            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200' 
-                            : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
-                            index === 0 ? 'bg-blue-600 text-white' :
-                            index === 1 ? 'bg-gray-500 text-white' :
-                            index === 2 ? 'bg-orange-500 text-white' :
-                            'bg-gray-300 text-gray-700'
-                          }`}>
-                            {business.rank}
-                          </div>
-                          
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-1">
-                              <Link
-                                to={`/business/${business.id}`}
-                                className="font-bold text-lg text-gray-900 hover:text-blue-600 transition-colors"
-                              >
-                                {business.name}
-                              </Link>
-                              {business.verified && (
-                                <ShieldCheck className="h-4 w-4 text-green-600" />
-                              )}
-                            </div>
-                            <div className="flex items-center space-x-4 text-sm text-gray-600">
-                              <span>{business.sector}</span>
-                              <span>•</span>
-                              <span>{business.region}</span>
-                              <span>•</span>
-                              <span>BI ID: {business.bi_id}</span>
-                            </div>
-                          </div>
+                <div className="space-y-6">
+                  {isLoading ? (
+                    <LoadingSkeleton />
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-blue-400">{analytics?.views.toLocaleString() || '2.15M'}</div>
+                          <div className="text-sm text-slate-400">Monthly Queries</div>
                         </div>
-                        
-                        <div className="flex items-center space-x-6">
-                          <div className="text-center">
-                            <div className="text-xl font-bold text-blue-600">{business.digital_score}</div>
-                            <div className="text-xs text-gray-600">Intelligence Score</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-lg font-semibold text-gray-900">{business.market_share_percentage}%</div>
-                            <div className="text-xs text-gray-600">Market Share</div>
-                          </div>
-                          <div className="text-center">
-                            <div className={`text-lg font-semibold ${
-                              business.growth_rate > 0 ? 'text-green-600' : 'text-red-600'
-                            }`}>
-                              {business.growth_rate > 0 ? '+' : ''}{business.growth_rate}%
-                            </div>
-                            <div className="text-xs text-gray-600">Growth</div>
-                          </div>
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-green-400">{analytics?.clicks.toLocaleString() || '1.34M'}</div>
+                          <div className="text-sm text-slate-400">Verifications</div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                  
-                  <div className="mt-8 text-center">
+
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-300">System Status</span>
+                          <span className="text-green-400 font-semibold flex items-center space-x-1">
+                            <CheckCircle className="h-3 w-3" />
+                            <span>Operational</span>
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-300">Last Update</span>
+                          <span className="text-slate-300">{realTimeMetrics?.lastUpdate || 'Just now'}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-300">Data Coverage</span>
+                          <span className="text-blue-400">{realTimeMetrics?.regions || '31'} Regions</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-300">Accuracy</span>
+                          <span className="text-green-400">{realTimeMetrics?.accuracy || '99.8%'}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="pt-4 border-t border-white/10">
                     <Link
-                      to="/rankings"
-                      className="btn btn-primary"
+                      to="/admin"
+                      className="w-full btn bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 border border-blue-500/30 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
                     >
-                      View Complete Rankings
+                      Access Full Dashboard
                     </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Intelligence Insights */}
-            <div className="space-y-6">
-              <div className="card border border-gray-200">
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                    <Brain className="h-5 w-5 text-purple-600" />
-                    <span>Intelligence Insights</span>
-                  </h3>
-                  
-                  <div className="space-y-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <TrendingUp className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm font-semibold text-blue-900">Sector Growth</span>
-                      </div>
-                      <p className="text-sm text-blue-800">Telecommunications sector showing 12.4% growth this quarter</p>
-                    </div>
-                    
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Award className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-semibold text-green-900">Market Leader</span>
-                      </div>
-                      <p className="text-sm text-green-800">Vodacom maintains dominance with 42.3% market share</p>
-                    </div>
-                    
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <AlertTriangle className="h-4 w-4 text-orange-600" />
-                        <span className="text-sm font-semibold text-orange-900">Risk Alert</span>
-                      </div>
-                      <p className="text-sm text-orange-800">3 entities require verification updates</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card border border-gray-200">
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">System Health</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">API Status</span>
-                      <span className="text-green-600 font-semibold flex items-center space-x-1">
-                        <CheckCircle className="h-4 w-4" />
-                        <span>Operational</span>
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Data Freshness</span>
-                      <span className="text-blue-600 font-semibold">&lt; 5min</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Coverage</span>
-                      <span className="text-purple-600 font-semibold">99.2%</span>
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
-      )}
 
-      {/* ENTERPRISE FEATURES */}
-      <section className="bg-gradient-to-br from-slate-900 to-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-6">Enterprise-Grade Features</h2>
-            <p className="text-xl text-slate-300 max-w-4xl mx-auto">
-              Comprehensive business intelligence platform designed for financial institutions, 
-              corporations, and government agencies requiring the highest standards of data accuracy and security.
-            </p>
+        {/* TRUST INDICATORS */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="region" aria-label="Trusted Organizations">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Trusted by Leading Organizations</h2>
+            <p className="text-xl text-gray-600">Powering business intelligence for banks, corporations, and government agencies</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-3 bg-blue-500/20 rounded-lg">
-                  <Database className="h-8 w-8 text-blue-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white">Complete Data Coverage</h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
+            {/* Placeholder for trusted organization logos */}
+            {[
+              { name: "Central Bank", color: "blue" },
+              { name: "CRDB Bank", color: "green" },
+              { name: "Vodacom", color: "red" },
+              { name: "Government", color: "purple" }
+            ].map((org, index) => (
+              <div key={index} className="bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg p-6 w-full h-16 flex items-center justify-center group">
+                <span className="text-gray-600 group-hover:text-gray-800 font-semibold transition-colors">{org.name}</span>
               </div>
-              <p className="text-slate-300 mb-6">
-                250,000+ verified business entities across all 31 regions of Tanzania with 
-                comprehensive ownership, financial, and operational data.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Real-time verification status</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Ownership structure mapping</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Financial health indicators</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-3 bg-green-500/20 rounded-lg">
-                  <Shield className="h-8 w-8 text-green-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white">Security & Compliance</h3>
-              </div>
-              <p className="text-slate-300 mb-6">
-                Bank-grade security with compliance standards for KYB, AML, and regulatory 
-                requirements. Encrypted data transmission and audit trails.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>ISO 27001 certified infrastructure</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>End-to-end encryption</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Complete audit logging</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-3 bg-purple-500/20 rounded-lg">
-                  <Brain className="h-8 w-8 text-purple-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white">AI-Powered Analytics</h3>
-              </div>
-              <p className="text-slate-300 mb-6">
-                Advanced machine learning algorithms for predictive analytics, risk assessment, 
-                and market intelligence insights.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Predictive risk modeling</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Market trend analysis</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Competitive intelligence</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-3 bg-orange-500/20 rounded-lg">
-                  <Zap className="h-8 w-8 text-orange-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white">High-Performance APIs</h3>
-              </div>
-              <p className="text-slate-300 mb-6">
-                Enterprise-grade REST APIs with 99.97% uptime, sub-200ms response times, 
-                and comprehensive documentation for seamless integration.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>RESTful API architecture</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Rate limiting & throttling</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Comprehensive SDKs</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-3 bg-cyan-500/20 rounded-lg">
-                  <Globe className="h-8 w-8 text-cyan-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white">Custom Integration</h3>
-              </div>
-              <p className="text-slate-300 mb-6">
-                Tailored integration solutions with dedicated support for enterprise clients. 
-                Custom data feeds and specialized reporting.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Dedicated account management</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Custom report generation</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Priority technical support</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-3 bg-red-500/20 rounded-lg">
-                  <Activity className="h-8 w-8 text-red-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white">Real-Time Monitoring</h3>
-              </div>
-              <p className="text-slate-300 mb-6">
-                Continuous monitoring of business entities with instant alerts for changes in 
-                status, ownership, or risk profile modifications.
-              </p>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Real-time status updates</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Automated alert system</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
-                  <span>Change history tracking</span>
-                </li>
-              </ul>
-            </div>
+            ))}
           </div>
-        </div>
-      </section>
+          
+          {/* Compliance Badges */}
+          <div className="mt-12 grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
+            {[
+              { label: "ISO 27001", desc: "Certified" },
+              { label: "SOC 2", desc: "Type II" },
+              { label: "GDPR", desc: "Compliant" },
+              { label: "99.97%", desc: "Uptime SLA" },
+              { label: "256-bit", desc: "Encryption" }
+            ].map((badge, index) => (
+              <div key={index} className="text-center p-4 bg-gray-50 rounded-lg">
+                <div className="font-bold text-gray-900">{badge.label}</div>
+                <div className="text-sm text-gray-600">{badge.desc}</div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-      {/* CALL TO ACTION */}
-      <section className="bg-gradient-to-r from-blue-600 to-indigo-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center space-y-8">
-            <div className="space-y-6">
-              <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-                Ready to Access Tanzania's
-                <span className="block text-blue-200">Complete Business Intelligence?</span>
-              </h2>
-              <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-                Join leading financial institutions and enterprises using our platform for 
-                critical business intelligence, verification, and risk assessment.
-              </p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link
-                to="/create-business"
-                className="btn bg-white text-blue-600 hover:bg-gray-100 text-xl px-12 py-4 shadow-lg hover:shadow-xl font-semibold"
-              >
-                Request Enterprise Access
-              </Link>
-              <Link
-                to="/verify"
-                className="btn bg-blue-500/20 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 text-xl px-12 py-4 shadow-lg hover:shadow-xl font-semibold"
-              >
-                Verify Business ID
-              </Link>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-16">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">250,000+</div>
-                <div className="text-blue-200">Verified Entities</div>
+        {/* BI ID VERIFICATION SYSTEM */}
+        <section className="bg-slate-50" role="region" aria-label="BI ID Verification System">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div className="space-y-8">
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-3 bg-blue-100 rounded-xl">
+                      <ShieldCheck className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <h2 className="text-4xl font-bold text-gray-900">Business Intelligence ID System</h2>
+                  </div>
+                  
+                  <p className="text-xl text-gray-600 leading-relaxed">
+                    Every business entity receives a unique, verifiable BI ID for secure identification 
+                    and verification. Essential for KYB compliance, due diligence, and risk assessment.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      icon: Lock,
+                      title: "Secure Verification",
+                      description: "Cryptographically secure IDs with real-time verification API for instant business validation.",
+                      color: "blue"
+                    },
+                    {
+                      icon: Database,
+                      title: "Comprehensive Data",
+                      description: "Complete business profiles with ownership, financial, and operational intelligence data.",
+                      color: "green"
+                    },
+                    {
+                      icon: Clock,
+                      title: "Real-Time Updates",
+                      description: "Continuous monitoring and updates ensure data accuracy and reliability for critical decisions.",
+                      color: "orange"
+                    },
+                    {
+                      icon: Globe,
+                      title: "API Integration",
+                      description: "Enterprise-grade APIs for seamless integration with your existing systems and workflows.",
+                      color: "purple"
+                    }
+                  ].map((feature, index) => (
+                    <div key={index} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <feature.icon className={`h-6 w-6 text-${feature.color}-600`} />
+                        <h3 className="font-bold text-gray-900">{feature.title}</h3>
+                      </div>
+                      <p className="text-gray-600">{feature.description}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-6">
+                  <Link
+                    to="/verify"
+                    className="btn btn-primary text-lg px-8 py-4 flex items-center space-x-2 w-fit hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  >
+                    <ShieldCheck className="h-5 w-5" />
+                    <span>Verify Business ID</span>
+                  </Link>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">99.97%</div>
-                <div className="text-blue-200">System Uptime</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-2">&lt; 200ms</div>
-                <div className="text-blue-200">API Response Time</div>
+
+              <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">Sample BI ID Verification</h3>
+                    <div className="bg-blue-50 rounded-lg p-6 border-2 border-blue-200">
+                      <div className="text-sm text-blue-600 font-medium mb-2">Business Intelligence ID</div>
+                      <div className="text-2xl font-mono font-bold text-blue-900 mb-4">BIZ-TZ-20241201-0001</div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="text-left">
+                          <div className="text-gray-600">Entity:</div>
+                          <div className="font-semibold">Vodacom Tanzania Ltd</div>
+                        </div>
+                        <div className="text-left">
+                          <div className="text-gray-600">Status:</div>
+                          <div className="font-semibold text-green-600 flex items-center space-x-1">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>Verified</span>
+                          </div>
+                        </div>
+                        <div className="text-left">
+                          <div className="text-gray-600">Sector:</div>
+                          <div className="font-semibold">Telecommunications</div>
+                        </div>
+                        <div className="text-left">
+                          <div className="text-gray-600">Region:</div>
+                          <div className="font-semibold">Dar es Salaam</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      { label: "Verification Time", value: "< 200ms", color: "green" },
+                      { label: "Data Accuracy", value: "99.8%", color: "blue" },
+                      { label: "Coverage", value: "National", color: "purple" },
+                      { label: "Uptime", value: "99.97%", color: "green" }
+                    ].map((metric, index) => (
+                      <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <span className="text-gray-700 font-medium">{metric.label}</span>
+                        <span className={`text-${metric.color}-600 font-semibold`}>{metric.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+
+        {/* MARKET INTELLIGENCE RANKINGS */}
+        {leaderboardData && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="region" aria-label="Market Intelligence Rankings">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">Market Intelligence & Rankings</h2>
+              <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+                Real-time business performance analytics and competitive intelligence 
+                across all sectors and regions in Tanzania.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Market Leaders */}
+              <div className="lg:col-span-2">
+                <div className="card border border-gray-200">
+                  <div className="p-8">
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-2xl font-bold text-gray-900 flex items-center space-x-3">
+                        <Trophy className="h-6 w-6 text-blue-600" />
+                        <span>Market Leaders</span>
+                      </h3>
+                      <div className="flex items-center space-x-2 text-sm text-gray-500">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span>Live Data</span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {isLoading ? (
+                        [...Array(5)].map((_, index) => (
+                          <div key={index} className="p-6 bg-gray-50 rounded-xl animate-pulse">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                              <div className="flex-1">
+                                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        leaderboardData.overall_leaders.slice(0, 5).map((business, index) => (
+                          <div
+                            key={business.id}
+                            className={`flex items-center justify-between p-6 rounded-xl border transition-all hover:shadow-md ${
+                              index === 0 
+                                ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200' 
+                                : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-4">
+                              <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
+                                index === 0 ? 'bg-blue-600 text-white' :
+                                index === 1 ? 'bg-gray-500 text-white' :
+                                index === 2 ? 'bg-orange-500 text-white' :
+                                'bg-gray-300 text-gray-700'
+                              }`}>
+                                {business.rank}
+                              </div>
+                              
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3 mb-1">
+                                  <Link
+                                    to={`/business/${business.id}`}
+                                    className="font-bold text-lg text-gray-900 hover:text-blue-600 transition-colors focus:outline-none focus:text-blue-600"
+                                  >
+                                    {business.name}
+                                  </Link>
+                                  {business.verified && (
+                                    <ShieldCheck className="h-4 w-4 text-green-600" aria-label="Verified" />
+                                  )}
+                                </div>
+                                <div className="flex items-center space-x-4 text-sm text-gray-600">
+                                  <span>{business.sector}</span>
+                                  <span>•</span>
+                                  <span>{business.region}</span>
+                                  <span>•</span>
+                                  <span className="font-mono text-xs">BI ID: {business.bi_id}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center space-x-6">
+                              <div className="text-center">
+                                <div className="text-xl font-bold text-blue-600">{business.digital_score}</div>
+                                <div className="text-xs text-gray-600">Intelligence Score</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-lg font-semibold text-gray-900">{business.market_share_percentage}%</div>
+                                <div className="text-xs text-gray-600">Market Share</div>
+                              </div>
+                              <div className="text-center">
+                                <div className={`text-lg font-semibold flex items-center space-x-1 ${
+                                  business.growth_rate > 0 ? 'text-green-600' : 'text-red-600'
+                                }`}>
+                                  {business.growth_rate > 0 && <TrendingUp className="h-4 w-4" />}
+                                  <span>{business.growth_rate > 0 ? '+' : ''}{business.growth_rate}%</span>
+                                </div>
+                                <div className="text-xs text-gray-600">Growth</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    
+                    <div className="mt-8 text-center">
+                      <Link
+                        to="/rankings"
+                        className="btn btn-primary hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      >
+                        View Complete Rankings
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Intelligence Insights */}
+              <div className="space-y-6">
+                <div className="card border border-gray-200">
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
+                      <Brain className="h-5 w-5 text-purple-600" />
+                      <span>Intelligence Insights</span>
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 transition-colors">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <TrendingUp className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-semibold text-blue-900">Sector Growth</span>
+                        </div>
+                        <p className="text-sm text-blue-800">Telecommunications sector showing 12.4% growth this quarter</p>
+                      </div>
+                      
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 hover:bg-green-100 transition-colors">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Award className="h-4 w-4 text-green-600" />
+                          <span className="text-sm font-semibold text-green-900">Market Leader</span>
+                        </div>
+                        <p className="text-sm text-green-800">Vodacom maintains dominance with 42.3% market share</p>
+                      </div>
+                      
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 hover:bg-orange-100 transition-colors">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <AlertTriangle className="h-4 w-4 text-orange-600" />
+                          <span className="text-sm font-semibold text-orange-900">Risk Alert</span>
+                        </div>
+                        <p className="text-sm text-orange-800">3 entities require verification updates</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="card border border-gray-200">
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">System Health</h3>
+                    <div className="space-y-3">
+                      {[
+                        { label: "API Status", value: "Operational", icon: CheckCircle, color: "green" },
+                        { label: "Data Freshness", value: "< 5min", color: "blue" },
+                        { label: "Coverage", value: "99.2%", color: "purple" },
+                        { label: "Response Time", value: "< 200ms", color: "green" }
+                      ].map((metric, index) => (
+                        <div key={index} className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">{metric.label}</span>
+                          <span className={`text-${metric.color}-600 font-semibold flex items-center space-x-1`}>
+                            {metric.icon && <metric.icon className="h-4 w-4" />}
+                            <span>{metric.value}</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ENTERPRISE FEATURES */}
+        <section className="bg-gradient-to-br from-slate-900 to-slate-800" role="region" aria-label="Enterprise Features">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-white mb-6">Enterprise-Grade Features</h2>
+              <p className="text-xl text-slate-300 max-w-4xl mx-auto">
+                Comprehensive business intelligence platform designed for financial institutions, 
+                corporations, and government agencies requiring the highest standards of data accuracy and security.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: Database,
+                  title: "Complete Data Coverage",
+                  description: "250,000+ verified business entities across all 31 regions of Tanzania with comprehensive ownership, financial, and operational data.",
+                  features: ["Real-time verification status", "Ownership structure mapping", "Financial health indicators"],
+                  color: "blue"
+                },
+                {
+                  icon: Shield,
+                  title: "Security & Compliance",
+                  description: "Bank-grade security with compliance standards for KYB, AML, and regulatory requirements. Encrypted data transmission and audit trails.",
+                  features: ["ISO 27001 certified infrastructure", "End-to-end encryption", "Complete audit logging"],
+                  color: "green"
+                },
+                {
+                  icon: Brain,
+                  title: "AI-Powered Analytics",
+                  description: "Advanced machine learning algorithms for predictive analytics, risk assessment, and market intelligence insights.",
+                  features: ["Predictive risk modeling", "Market trend analysis", "Competitive intelligence"],
+                  color: "purple"
+                },
+                {
+                  icon: Zap,
+                  title: "High-Performance APIs",
+                  description: "Enterprise-grade REST APIs with 99.97% uptime, sub-200ms response times, and comprehensive documentation for seamless integration.",
+                  features: ["RESTful API architecture", "Rate limiting & throttling", "Comprehensive SDKs"],
+                  color: "orange"
+                },
+                {
+                  icon: Globe,
+                  title: "Custom Integration",
+                  description: "Tailored integration solutions with dedicated support for enterprise clients. Custom data feeds and specialized reporting.",
+                  features: ["Dedicated account management", "Custom report generation", "Priority technical support"],
+                  color: "cyan"
+                },
+                {
+                  icon: Activity,
+                  title: "Real-Time Monitoring",
+                  description: "Continuous monitoring of business entities with instant alerts for changes in status, ownership, or risk profile modifications.",
+                  features: ["Real-time status updates", "Automated alert system", "Change history tracking"],
+                  color: "red"
+                }
+              ].map((feature, index) => (
+                <div key={index} className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className={`p-3 bg-${feature.color}-500/20 rounded-lg`}>
+                      <feature.icon className={`h-8 w-8 text-${feature.color}-400`} />
+                    </div>
+                    <h3 className="text-xl font-bold text-white">{feature.title}</h3>
+                  </div>
+                  <p className="text-slate-300 mb-6 leading-relaxed">{feature.description}</p>
+                  <ul className="space-y-2 text-sm text-slate-400">
+                    {feature.features.map((item, idx) => (
+                      <li key={idx} className="flex items-center space-x-2">
+                        <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CALL TO ACTION */}
+        <section className="bg-gradient-to-r from-blue-600 to-indigo-700" role="region" aria-label="Call to Action">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div className="text-center space-y-8">
+              <div className="space-y-6">
+                <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+                  Ready to Access Tanzania's
+                  <span className="block text-blue-200">Complete Business Intelligence?</span>
+                </h2>
+                <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+                  Join leading financial institutions and enterprises using our platform for 
+                  critical business intelligence, verification, and risk assessment.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <Link
+                  to="/create-business"
+                  className="btn bg-white text-blue-600 hover:bg-gray-100 text-xl px-12 py-4 shadow-lg hover:shadow-xl font-semibold hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-white/40"
+                >
+                  Request Enterprise Access
+                </Link>
+                <Link
+                  to="/verify"
+                  className="btn bg-blue-500/20 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 text-xl px-12 py-4 shadow-lg hover:shadow-xl font-semibold hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-white/40"
+                >
+                  Verify Business ID
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-5xl mx-auto mt-16">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-2">250,000+</div>
+                  <div className="text-blue-200">Verified Entities</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-2">99.97%</div>
+                  <div className="text-blue-200">System Uptime</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-2">< 200ms</div>
+                  <div className="text-blue-200">API Response</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white mb-2">31</div>
+                  <div className="text-blue-200">Regions Covered</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </>
   )
 }
 
-export default Home
+export default React.memo(Home)
