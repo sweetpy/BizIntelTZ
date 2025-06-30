@@ -1,5 +1,5 @@
 import React from 'react'
-import { Search, Filter, X } from 'lucide-react'
+import { Search, Filter, X, Shield } from 'lucide-react'
 import { SearchFilters as SearchFiltersType } from '../types'
 
 interface SearchFiltersProps {
@@ -66,6 +66,23 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ filters, onFiltersChange,
           </div>
         </div>
 
+        {/* BI ID Search */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            BI ID Search
+          </label>
+          <div className="relative">
+            <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="BIZ-TZ-YYYYMMDD-XXXX"
+              value={filters.bi_id || ''}
+              onChange={(e) => handleInputChange('bi_id', e.target.value)}
+              className="input pl-10 font-mono text-sm"
+            />
+          </div>
+        </div>
+
         {/* Region Filter */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -120,8 +137,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ filters, onFiltersChange,
           />
         </div>
 
-        {/* Premium Filter */}
-        <div className="flex items-center space-x-3 pt-7">
+        {/* Filters */}
+        <div className="flex items-center space-x-6 pt-7">
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="checkbox"
@@ -130,6 +147,16 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ filters, onFiltersChange,
               className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
             />
             <span className="text-sm font-medium text-gray-700">Premium Only</span>
+          </label>
+          
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={filters.verified || false}
+              onChange={(e) => handleInputChange('verified', e.target.checked)}
+              className="rounded border-gray-300 text-success-600 focus:ring-success-500"
+            />
+            <span className="text-sm font-medium text-gray-700">Verified Only</span>
           </label>
         </div>
       </div>

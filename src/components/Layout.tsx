@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Building2, Search, Plus, BarChart3, Users, Settings, LogOut, User } from 'lucide-react'
+import { Building2, Search, Plus, BarChart3, Users, Settings, LogOut, User, Shield } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 interface LayoutProps {
@@ -55,6 +55,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 }`}
               >
                 Search
+              </Link>
+              <Link
+                to="/verify"
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive('/verify') 
+                    ? 'bg-primary-100 text-primary-700' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                Verify BI ID
               </Link>
               <Link
                 to="/create-business"
@@ -126,7 +136,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-                Empowering Tanzanian businesses with comprehensive intelligence and analytics.
+                Empowering Tanzanian businesses with comprehensive intelligence, verified BI IDs, and secure verification systems.
               </p>
             </div>
             
@@ -134,17 +144,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <h4 className="font-semibold text-gray-900 mb-4">Platform</h4>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li><Link to="/search" className="hover:text-gray-900 transition-colors">Search Businesses</Link></li>
+                <li><Link to="/verify" className="hover:text-gray-900 transition-colors">Verify BI ID</Link></li>
                 <li><Link to="/create-business" className="hover:text-gray-900 transition-colors">Add Business</Link></li>
-                <li><Link to="/" className="hover:text-gray-900 transition-colors">Analytics</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Resources</h4>
+              <h4 className="font-semibold text-gray-900 mb-4">BI ID System</h4>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-gray-900 transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-gray-900 transition-colors">API Reference</a></li>
-                <li><a href="#" className="hover:text-gray-900 transition-colors">Support</a></li>
+                <li><a href="#" className="hover:text-gray-900 transition-colors">For Banks</a></li>
+                <li><a href="#" className="hover:text-gray-900 transition-colors">For Businesses</a></li>
+                <li><a href="#" className="hover:text-gray-900 transition-colors">Verification Guide</a></li>
               </ul>
             </div>
             
@@ -160,7 +170,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           <div className="mt-8 pt-8 border-t border-gray-200">
             <p className="text-sm text-gray-500 text-center">
-              © 2024 BizIntelTZ. All rights reserved.
+              © 2024 BizIntelTZ. All rights reserved. | Secure Business Verification with BI ID System
             </p>
           </div>
         </div>

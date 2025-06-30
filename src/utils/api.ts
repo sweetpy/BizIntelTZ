@@ -9,7 +9,9 @@ import {
   Lead, 
   SearchFilters,
   AnalyticsData,
-  AdminStats
+  AdminStats,
+  BIVerificationResult,
+  BIVerificationRequest
 } from '../types'
 
 const api = axios.create({
@@ -53,6 +55,17 @@ export const getBusinessProfile = async (id: string): Promise<Business> => {
 
 export const featureBusiness = async (id: string): Promise<void> => {
   await api.post(`/admin/feature?biz_id=${id}`)
+}
+
+// BI ID Verification APIs
+export const verifyBIID = async (biId: string): Promise<BIVerificationResult> => {
+  const response = await api.get(`/verify-bi/${biId}`)
+  return response.data
+}
+
+export const requestBIVerification = async (request: BIVerificationRequest): Promise<any> => {
+  const response = await api.post('/request-verification', request)
+  return response.data
 }
 
 // Scraping

@@ -10,6 +10,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import ClaimsManagement from './pages/ClaimsManagement'
 import Analytics from './pages/Analytics'
 import LeadsManagement from './pages/LeadsManagement'
+import BIVerification from './pages/BIVerification'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<Search />} />
         <Route path="/business/:id" element={<BusinessProfile />} />
+        <Route path="/verify" element={<BIVerification />} />
         <Route path="/login" element={<Login />} />
         <Route path="/create-business" element={<CreateBusiness />} />
         <Route

@@ -11,7 +11,11 @@ import {
   Edit3,
   ExternalLink,
   Eye,
-  MousePointer
+  MousePointer,
+  Shield,
+  ShieldCheck,
+  Copy,
+  CheckCircle
 } from 'lucide-react'
 import { 
   getBusinessProfile, 
@@ -20,9 +24,11 @@ import {
   createLead, 
   trackEvent, 
   uploadMedia, 
-  getMedia 
+  getMedia,
+  verifyBIID,
+  claimBusiness
 } from '../utils/api'
-import { Business, Review, Lead } from '../types'
+import { Business, Review, Lead, Claim } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
 
@@ -35,8 +41,10 @@ const BusinessProfile: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [showLeadForm, setShowLeadForm] = useState(false)
+  const [showClaimForm, setShowClaimForm] = useState(false)
   const [reviewData, setReviewData] = useState({ rating: 5, comment: '' })
   const [leadData, setLeadData] = useState({ name: '', message: '' })
+  const [claimData, setClaimData] = useState({ owner_name: '', contact: '' })
 
   useEffect(() => {
     if (id) {
@@ -131,6 +139,27 @@ const BusinessProfile: React.FC = () => {
     }
   }
 
+  const handleClaimSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!id) return
+
+    try {
+      await claimBusiness({
+        business_id: id,
+        owner_name: claimData.owner_name,
+        contact: claimData.contact,
+        approved: false
+      })
+      
+      toast.success('Claim submitted successfully! It will be reviewed by administrators.')
+      setShowClaimForm(false)
+      setClaimData({ owner_name: '', contact: '' })
+    } catch (error) {
+      console.error('Error submitting claim:', error)
+      toast.error('Failed to submit claim')
+    }
+  }
+
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !id) return
@@ -145,6 +174,25 @@ const BusinessProfile: React.FC = () => {
     } catch (error) {
       console.error('Error uploading media:', error)
       toast.error('Failed to upload media')
+    }
+  }
+
+  const copyBIID = (biId: string) => {
+    navigator.clipboard.writeText(biId)
+    toast.success('BI ID copied to clipboard!')
+  }
+
+  const verifyBusiness = async (biId: string) => {
+    try {
+      const result = await verifyBIID(biId)
+      if (result.valid) {
+        toast.success(`Business verified! Status: ${result.status}`)
+      } else {
+        toast.error('Business verification failed')
+      }
+    } catch (error) {
+      console.error('Error verifying business:', error)
+      toast.error('Failed to verify business')
     }
   }
 
@@ -223,12 +271,57 @@ const BusinessProfile: React.FC = () => {
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-4">
               <h1 className="text-3xl font-bold text-gray-900">{business.name}</h1>
-              {business.premium && (
-                <div className="flex items-center space-x-1 bg-secondary-100 px-3 py-1 rounded-full">
-                  <Award className="h-4 w-4 text-secondary-600" />
-                  <span className="text-sm font-medium text-secondary-600">Premium</span>
+              <div className="flex items-center space-x-2">
+                {business.premium && (
+                  <div className="flex items-center space-x-1 bg-secondary-100 px-3 py-1 rounded-full">
+                    <Award className="h-4 w-4 text-secondary-600" />
+                    <span className="text-sm font-medium text-secondary-600">Premium</span>
+                  </div>
+                )}
+                {business.verified && (
+                  <div className="flex items-center space-x-1 bg-success-100 px-3 py-1 rounded-full">
+                    <ShieldCheck className="h-4 w-4 text-success-600" />
+                    <span className="text-sm font-medium text-success-600">Verified</span>
+                  </div>
+                )}
+                {business.claimed && !business.verified && (
+                  <div className="flex items-center space-x-1 bg-warning-100 px-3 py-1 rounded-full">
+                    <Shield className="h-4 w-4 text-warning-600" />
+                    <span className="text-sm font-medium text-warning-600">Claimed</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* BI ID Section */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-900 mb-1">Business Intelligence ID</p>
+                  <div className="flex items-center space-x-2">
+                    <code className="text-lg font-mono text-blue-800 bg-white px-2 py-1 rounded border">
+                      {business.bi_id}
+                    </code>
+                    <button
+                      onClick={() => copyBIID(business.bi_id)}
+                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                      title="Copy BI ID"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Use this ID for bank verification and official business verification
+                  </p>
                 </div>
-              )}
+                <button
+                  onClick={() => verifyBusiness(business.bi_id)}
+                  className="btn btn-secondary text-sm flex items-center space-x-2"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  <span>Verify</span>
+                </button>
+              </div>
             </div>
             
             <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-6">
@@ -299,6 +392,16 @@ const BusinessProfile: React.FC = () => {
             <MessageSquare className="h-4 w-4" />
             <span>Write Review</span>
           </button>
+          
+          {!business.claimed && (
+            <button
+              onClick={() => setShowClaimForm(true)}
+              className="btn btn-secondary flex items-center space-x-2"
+            >
+              <Shield className="h-4 w-4" />
+              <span>Claim Business</span>
+            </button>
+          )}
           
           {isAuthenticated && (
             <label className="btn btn-secondary cursor-pointer flex items-center space-x-2">
@@ -476,6 +579,64 @@ const BusinessProfile: React.FC = () => {
                 </button>
                 <button type="submit" className="btn btn-primary">
                   Send Message
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Claim Form Modal */}
+      {showClaimForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Claim This Business</h3>
+            <form onSubmit={handleClaimSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Owner Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={claimData.owner_name}
+                  onChange={(e) => setClaimData({ ...claimData, owner_name: e.target.value })}
+                  className="input"
+                  placeholder="Enter owner/manager name"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Contact Information
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={claimData.contact}
+                  onChange={(e) => setClaimData({ ...claimData, contact: e.target.value })}
+                  className="input"
+                  placeholder="Phone number or email"
+                />
+              </div>
+              
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  By claiming this business, you confirm that you are authorized to represent it. 
+                  Your claim will be reviewed by our administrators.
+                </p>
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowClaimForm(false)}
+                  className="btn btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Submit Claim
                 </button>
               </div>
             </form>

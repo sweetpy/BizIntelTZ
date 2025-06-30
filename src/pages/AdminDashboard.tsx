@@ -10,7 +10,9 @@ import {
   MapPin,
   Building2,
   Search,
-  Plus
+  Plus,
+  Shield,
+  ShieldCheck
 } from 'lucide-react'
 import { getAdminStats, scrapeBusinesses } from '../utils/api'
 import { AdminStats } from '../types'
@@ -89,6 +91,20 @@ const AdminDashboard: React.FC = () => {
       link: '/admin/leads'
     },
     {
+      title: 'Verified Businesses',
+      value: stats?.verified_businesses || 0,
+      icon: ShieldCheck,
+      color: 'bg-success-600',
+      link: '/search?verified=true'
+    },
+    {
+      title: 'Total Businesses',
+      value: stats?.total_businesses || 0,
+      icon: Building2,
+      color: 'bg-primary-500',
+      link: '/search'
+    },
+    {
       title: 'Analytics',
       value: 'View',
       icon: BarChart3,
@@ -119,7 +135,7 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {quickStats.map((stat, index) => (
           <Link
             key={index}
@@ -143,6 +159,43 @@ const AdminDashboard: React.FC = () => {
         ))}
       </div>
 
+      {/* BI ID System Info */}
+      <div className="card">
+        <div className="p-6">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Shield className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">BI ID Verification System</h3>
+              <p className="text-sm text-gray-600">Business Intelligence ID for secure verification</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">For Banks & Financial Institutions</h4>
+              <p className="text-sm text-blue-800 mb-3">
+                Use BI IDs to verify business authenticity before processing loans, accounts, or transactions.
+              </p>
+              <div className="text-xs text-blue-700 font-mono bg-white p-2 rounded border">
+                Example: BIZ-TZ-20241201-1234
+              </div>
+            </div>
+            
+            <div className="bg-success-50 p-4 rounded-lg">
+              <h4 className="font-medium text-success-900 mb-2">Verification Benefits</h4>
+              <ul className="text-sm text-success-800 space-y-1">
+                <li>• Prevent business fraud</li>
+                <li>• Verify ownership claims</li>
+                <li>• Streamline KYB processes</li>
+                <li>• Access digital scores</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Data Scraping */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="card">
@@ -153,7 +206,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Data Scraping</h3>
-                <p className="text-sm text-gray-600">Generate sample business data</p>
+                <p className="text-sm text-gray-600">Generate sample business data with BI IDs</p>
               </div>
             </div>
             
@@ -201,8 +254,8 @@ const AdminDashboard: React.FC = () => {
             
             <div className="mt-4 p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">
-                <strong>Note:</strong> This will generate 3 sample businesses for demonstration purposes.
-                In a production environment, this would integrate with real data sources.
+                <strong>Note:</strong> This will generate 3 sample businesses with unique BI IDs.
+                Each business gets a verification code for banking integration.
               </p>
             </div>
           </div>
@@ -253,6 +306,21 @@ const AdminDashboard: React.FC = () => {
               </Link>
               
               <Link
+                to="/search?verified=true"
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <ShieldCheck className="h-4 w-4 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-900">Verified Businesses</span>
+                </div>
+                {stats && stats.verified_businesses > 0 && (
+                  <span className="bg-success-100 text-success-700 px-2 py-1 rounded-full text-xs font-medium">
+                    {stats.verified_businesses} verified
+                  </span>
+                )}
+              </Link>
+              
+              <Link
                 to="/admin/analytics"
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
@@ -280,7 +348,7 @@ const AdminDashboard: React.FC = () => {
       <div className="card">
         <div className="p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">System Status</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
               <div className="w-3 h-3 bg-success-500 rounded-full mx-auto mb-2"></div>
               <p className="text-sm font-medium text-gray-900">API Status</p>
@@ -290,6 +358,11 @@ const AdminDashboard: React.FC = () => {
               <div className="w-3 h-3 bg-success-500 rounded-full mx-auto mb-2"></div>
               <p className="text-sm font-medium text-gray-900">Database</p>
               <p className="text-xs text-gray-600">Connected</p>
+            </div>
+            <div className="text-center">
+              <div className="w-3 h-3 bg-success-500 rounded-full mx-auto mb-2"></div>
+              <p className="text-sm font-medium text-gray-900">BI ID System</p>
+              <p className="text-xs text-gray-600">Active</p>
             </div>
             <div className="text-center">
               <div className="w-3 h-3 bg-success-500 rounded-full mx-auto mb-2"></div>
