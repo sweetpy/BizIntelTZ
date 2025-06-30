@@ -12,6 +12,7 @@ import datetime
 
 from database import Database
 from crawler import crawl_site
+from doc_crawler import process_documents, UPLOAD_DIR
 
 app = FastAPI(title="BizIntelTZ")
 
@@ -364,6 +365,23 @@ async def create_lead(lead: Lead):
     leads.append(lead)
     db.add_lead(lead)
     return {"status": "Lead stored"}
+
+@app.post("/documents/upload")
+async def upload_document(file: UploadFile = File(...)):
+    file_location = UPLOAD_DIR / file.filename
+    with open(file_location, "wb") as f:
+        f.write(await file.read())
+    db.add_document(file.filename)
+    return {"status": "uploaded", "filename": file.filename}
+
+@app.get("/documents")
+async def list_documents(token: str = Depends(oauth2_scheme)):
+    return db.list_documents()
+
+@app.post("/documents/process")
+async def process_docs(token: str = Depends(oauth2_scheme)):
+    summary = process_documents(db)
+    return summary
 
 @app.get("/leads", response_model=List[Lead])
 async def list_leads(token: str = Depends(oauth2_scheme)):

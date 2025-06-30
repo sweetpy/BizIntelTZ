@@ -17,6 +17,7 @@ import {
   Zap,
   ShoppingBag,
   Globe,
+  FilePlus,
   Sparkles,
   GraduationCap,
   Trophy
@@ -289,6 +290,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           <div className="flex items-center space-x-2">
                             <Globe className="h-4 w-4" />
                             <span>Crawler Dashboard</span>
+                          </div>
+                        </Link>
+                        <Link
+                          to="/admin/documents"
+                          className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <FilePlus className="h-4 w-4" />
+                            <span>Document Uploads</span>
                           </div>
                         </Link>
                       </div>

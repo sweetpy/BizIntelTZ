@@ -51,6 +51,7 @@ import {
   BuzzMeterData,
   VisibilityHeatmap,
   CompetitiveAlert
+  DocumentFile
 } from '../types'
 
 const api = axios.create({
@@ -348,6 +349,24 @@ export const getDataQualityMetrics = async (): Promise<DataQualityMetrics> => {
 
 export const runDataQualityCheck = async (): Promise<void> => {
   await api.post('/data-quality/check')
+}
+
+// Document processing APIs
+export const getDocuments = async (): Promise<DocumentFile[]> => {
+  const response = await api.get('/documents')
+  return response.data
+}
+
+export const uploadDocument = async (file: File): Promise<{status: string; filename: string}> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await api.post('/documents/upload', formData)
+  return response.data
+}
+
+export const processDocuments = async (): Promise<{processed: number; businesses_added: number}> => {
+  const response = await api.post('/documents/process')
+  return response.data
 }
 
 // Feedback & Survey APIs

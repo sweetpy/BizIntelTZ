@@ -33,6 +33,7 @@ import Rankings from './pages/Rankings'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 import CrawlerDashboard from './pages/CrawlerDashboard'
+import DocumentUploads from './pages/DocumentUploads'
 
 function App() {
   return (
@@ -122,6 +123,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CrawlerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/documents"
+          element={
+            <ProtectedRoute>
+              <DocumentUploads />
             </ProtectedRoute>
           }
         />

@@ -1,12 +1,18 @@
 import sqlite3
 import datetime
-from typing import Optional
+import random
+from typing import Optional, List, Dict
 from contextlib import contextmanager
 
 class Database:
     def __init__(self, path: str = "bizinteltz.db"):
         self.path = path
         self._init_db()
+
+    def generate_bi_id(self) -> str:
+        date_str = datetime.datetime.now().strftime("%Y%m%d")
+        random_suffix = f"{random.randint(1000, 9999)}"
+        return f"BIZ-TZ-{date_str}-{random_suffix}"
 
     @contextmanager
     def connection(self):
@@ -81,6 +87,14 @@ class Database:
                     businesses_added INTEGER
                 )"""
             )
+            c.execute(
+                """CREATE TABLE IF NOT EXISTS documents (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    filename TEXT,
+                    processed INTEGER DEFAULT 0,
+                    uploaded_at TEXT
+                )"""
+            )
             conn.commit()
 
     def add_business(self, biz):
@@ -102,6 +116,49 @@ class Database:
                     int(biz.verified),
                     int(biz.claimed),
                 ),
+            )
+            conn.commit()
+
+    def add_document(self, filename: str):
+        with self.connection() as conn:
+            conn.execute(
+                "INSERT INTO documents(filename, uploaded_at) VALUES (?, ?)",
+                (filename, datetime.datetime.utcnow().isoformat()),
+            )
+            conn.commit()
+
+    def list_documents(self) -> List[Dict]:
+        with self.connection() as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT id, filename, processed, uploaded_at FROM documents ORDER BY id DESC"
+            )
+            rows = c.fetchall()
+            return [
+                {
+                    "id": row[0],
+                    "filename": row[1],
+                    "processed": bool(row[2]),
+                    "uploaded_at": row[3],
+                }
+                for row in rows
+            ]
+
+    def get_unprocessed_documents(self) -> List[Dict]:
+        with self.connection() as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT id, filename FROM documents WHERE processed=0"
+            )
+            return [
+                {"id": row[0], "filename": row[1]} for row in c.fetchall()
+            ]
+
+    def mark_document_processed(self, doc_id: int):
+        with self.connection() as conn:
+            conn.execute(
+                "UPDATE documents SET processed=1 WHERE id=?",
+                (doc_id,),
             )
             conn.commit()
 
@@ -190,3 +247,4 @@ class Database:
                 "avg_businesses_per_run": avg_biz,
                 "uptime_seconds": int(uptime_sec),
             }
+

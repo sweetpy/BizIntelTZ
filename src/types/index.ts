@@ -77,6 +77,13 @@ export interface CrawlerStats {
   uptime_seconds: number
 }
 
+export interface DocumentFile {
+  id: number
+  filename: string
+  processed: boolean
+  uploaded_at: string
+}
+
 export interface SearchFilters {
   q?: string
   region?: string
