@@ -365,3 +365,213 @@ export interface SectorAnalysis {
   growth_potential: number
   key_trends: string[]
 }
+
+// Dashboard Types
+export interface DashboardData {
+  metrics: DashboardMetric[]
+  activityTrends: ActivityTrend[]
+  distribution: DistributionItem[]
+  performance: PerformanceItem[]
+  recentActivity: RecentActivity[]
+}
+
+export interface DashboardMetric {
+  label: string
+  value: string | number
+  change?: number
+  color: string
+  icon: any
+}
+
+export interface ActivityTrend {
+  date: string
+  views: number
+  interactions: number
+}
+
+export interface DistributionItem {
+  name: string
+  value: number
+}
+
+export interface PerformanceItem {
+  category: string
+  current: number
+  previous: number
+}
+
+export interface RecentActivity {
+  title: string
+  description: string
+  timestamp: string
+  type: 'success' | 'warning' | 'info'
+}
+
+// Alert System Types
+export interface Alert {
+  id: string
+  title: string
+  message: string
+  type: 'info' | 'warning' | 'error' | 'success'
+  timestamp: string
+  read: boolean
+  business_id?: string
+}
+
+// Data Quality Types
+export interface DataQualityMetrics {
+  overall_score: number
+  completeness: number
+  accuracy: number
+  anomalies_count: number
+  duplicates_count: number
+  last_updated: string
+  issues: DataQualityIssue[]
+  trends: QualityTrend[]
+  recommendations: QualityRecommendation[]
+}
+
+export interface DataQualityIssue {
+  title: string
+  description: string
+  severity: 'low' | 'medium' | 'high'
+  affected_records: number
+}
+
+export interface QualityTrend {
+  metric: string
+  period: string
+  change: number
+  current_value: number
+}
+
+export interface QualityRecommendation {
+  title: string
+  description: string
+  priority: string
+  impact: string
+}
+
+// Feedback & Survey Types
+export interface FeedbackData {
+  nps_score: number
+  response_rate: number
+  total_responses: number
+  average_rating: number
+  sentiment_breakdown: SentimentBreakdown[]
+  recent_feedback: RecentFeedback[]
+  nps_trends: NPSTrend[]
+}
+
+export interface SentimentBreakdown {
+  sentiment: string
+  percentage: number
+}
+
+export interface RecentFeedback {
+  rating: number
+  comment: string
+  sentiment: string
+  timestamp: string
+}
+
+export interface NPSTrend {
+  period: string
+  score: number
+  responses: number
+}
+
+export interface Survey {
+  id?: string
+  title: string
+  description: string
+  questions: SurveyQuestion[]
+  active: boolean
+}
+
+export interface SurveyQuestion {
+  question: string
+  type: 'rating' | 'text' | 'multiple_choice' | 'yes_no'
+  required: boolean
+  options?: string[]
+}
+
+// Role Management Types
+export interface Role {
+  id: string
+  name: string
+  description: string
+  permissions: string[]
+  level: number
+}
+
+export interface UserAccount {
+  id: string
+  name: string
+  email: string
+  role: string
+  role_id: string
+  active: boolean
+  created_at: string
+  last_login?: string
+}
+
+// Predictive Analytics Types
+export interface PredictiveAnalyticsData {
+  model_accuracy: number
+  total_predictions: number
+  high_risk_count: number
+  confidence_score: number
+  growth_predictions: GrowthPrediction[]
+  risk_assessments: RiskAssessment[]
+  opportunities: OpportunityPrediction[]
+  model_insights: ModelInsight[]
+}
+
+export interface GrowthPrediction {
+  business_name: string
+  sector: string
+  region: string
+  growth_score: number
+  time_frame: string
+  confidence: number
+}
+
+export interface RiskAssessment {
+  business_name: string
+  risk_level: string
+  risk_score: number
+  risk_factors: string[]
+  last_updated: string
+}
+
+export interface OpportunityPrediction {
+  title: string
+  description: string
+  sector: string
+  score: number
+  estimated_value: number
+}
+
+export interface ModelInsight {
+  title: string
+  description: string
+  model_type: string
+  confidence: number
+}
+
+// External Integration Types
+export interface Integration {
+  id: string
+  name: string
+  type: 'webhook' | 'crm' | 'erp' | 'email' | 'analytics'
+  endpoint: string
+  api_key: string
+  active: boolean
+  events: string[]
+  headers: Record<string, string>
+  description: string
+  last_success?: string
+  total_calls?: number
+  success_rate?: number
+}

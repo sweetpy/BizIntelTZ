@@ -11,9 +11,13 @@ import {
   User, 
   Shield,
   Brain,
-  ChevronDown
+  ChevronDown,
+  Database,
+  MessageSquare,
+  Zap
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import AlertSystem from './AlertSystem'
 
 interface LayoutProps {
   children: ReactNode
@@ -131,6 +135,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       >
                         Competitive Intelligence
                       </Link>
+                      <Link
+                        to="/intelligence/predictive"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Predictive Analytics
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -150,15 +160,66 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* User Menu */}
             <div className="flex items-center space-x-4">
+              {isAuthenticated && <AlertSystem />}
+              
               {isAuthenticated ? (
                 <div className="flex items-center space-x-3">
-                  <Link
-                    to="/admin"
-                    className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Admin Dashboard"
-                  >
-                    <Settings className="h-5 w-5" />
-                  </Link>
+                  {/* Admin Dropdown */}
+                  <div className="relative group">
+                    <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                      <Settings className="h-5 w-5" />
+                    </button>
+                    <div className="absolute top-full right-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <div className="p-2">
+                        <Link
+                          to="/admin"
+                          className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <BarChart3 className="h-4 w-4" />
+                            <span>Admin Dashboard</span>
+                          </div>
+                        </Link>
+                        <Link
+                          to="/admin/data-quality"
+                          className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <Database className="h-4 w-4" />
+                            <span>Data Quality</span>
+                          </div>
+                        </Link>
+                        <Link
+                          to="/admin/feedback"
+                          className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <MessageSquare className="h-4 w-4" />
+                            <span>Feedback & Surveys</span>
+                          </div>
+                        </Link>
+                        <Link
+                          to="/admin/roles"
+                          className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <Shield className="h-4 w-4" />
+                            <span>Role Management</span>
+                          </div>
+                        </Link>
+                        <Link
+                          to="/admin/integrations"
+                          className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <Zap className="h-4 w-4" />
+                            <span>Integrations</span>
+                          </div>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div className="flex items-center space-x-2">
                     <div className="p-2 bg-gray-100 rounded-lg">
                       <User className="h-4 w-4 text-gray-600" />

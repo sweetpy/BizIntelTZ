@@ -18,6 +18,11 @@ import LeadGeneration from './pages/LeadGeneration'
 import InformalEconomyAnalytics from './pages/InformalEconomyAnalytics'
 import BusinessChangeMonitoring from './pages/BusinessChangeMonitoring'
 import CompetitiveIntelligence from './pages/CompetitiveIntelligence'
+import DataQuality from './pages/DataQuality'
+import FeedbackSurvey from './pages/FeedbackSurvey'
+import RoleManagement from './pages/RoleManagement'
+import PredictiveAnalytics from './pages/PredictiveAnalytics'
+import ExternalIntegrations from './pages/ExternalIntegrations'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -68,6 +73,38 @@ function App() {
           element={
             <ProtectedRoute>
               <LeadsManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/data-quality"
+          element={
+            <ProtectedRoute>
+              <DataQuality />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/feedback"
+          element={
+            <ProtectedRoute>
+              <FeedbackSurvey />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/roles"
+          element={
+            <ProtectedRoute>
+              <RoleManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/integrations"
+          element={
+            <ProtectedRoute>
+              <ExternalIntegrations />
             </ProtectedRoute>
           }
         />
@@ -124,6 +161,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CompetitiveIntelligence />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/intelligence/predictive"
+          element={
+            <ProtectedRoute>
+              <PredictiveAnalytics />
             </ProtectedRoute>
           }
         />

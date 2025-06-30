@@ -19,7 +19,16 @@ import {
   LeadGenerationData,
   InformalEconomyData,
   BusinessChangeData,
-  CompetitiveIntelligenceData
+  CompetitiveIntelligenceData,
+  DashboardData,
+  Alert,
+  DataQualityMetrics,
+  FeedbackData,
+  Survey,
+  Role,
+  UserAccount,
+  PredictiveAnalyticsData,
+  Integration
 } from '../types'
 
 const api = axios.create({
@@ -245,5 +254,118 @@ export const exportCompetitiveReport = async (sector: string): Promise<Blob> => 
     params: { sector },
     responseType: 'blob' 
   })
+  return response.data
+}
+
+// Dashboard APIs
+export const getDashboardData = async (type: string, businessId?: string): Promise<DashboardData> => {
+  const response = await api.get('/dashboard', { params: { type, business_id: businessId } })
+  return response.data
+}
+
+// Alert System APIs
+export const getAlerts = async (): Promise<Alert[]> => {
+  const response = await api.get('/alerts')
+  return response.data
+}
+
+export const markAlertAsRead = async (alertId: string): Promise<void> => {
+  await api.post(`/alerts/${alertId}/read`)
+}
+
+export const dismissAlert = async (alertId: string): Promise<void> => {
+  await api.delete(`/alerts/${alertId}`)
+}
+
+// Data Quality APIs
+export const getDataQualityMetrics = async (): Promise<DataQualityMetrics> => {
+  const response = await api.get('/data-quality')
+  return response.data
+}
+
+export const runDataQualityCheck = async (): Promise<void> => {
+  await api.post('/data-quality/check')
+}
+
+// Feedback & Survey APIs
+export const getFeedbackData = async (): Promise<FeedbackData> => {
+  const response = await api.get('/feedback')
+  return response.data
+}
+
+export const createSurvey = async (survey: Survey): Promise<void> => {
+  await api.post('/surveys', survey)
+}
+
+export const exportFeedbackData = async (): Promise<Blob> => {
+  const response = await api.get('/feedback/export', { responseType: 'blob' })
+  return response.data
+}
+
+// Role Management APIs
+export const getRoles = async (): Promise<Role[]> => {
+  const response = await api.get('/roles')
+  return response.data
+}
+
+export const getUsers = async (): Promise<UserAccount[]> => {
+  const response = await api.get('/users')
+  return response.data
+}
+
+export const createRole = async (role: Role): Promise<void> => {
+  await api.post('/roles', role)
+}
+
+export const updateRole = async (roleId: string, role: Role): Promise<void> => {
+  await api.put(`/roles/${roleId}`, role)
+}
+
+export const deleteRole = async (roleId: string): Promise<void> => {
+  await api.delete(`/roles/${roleId}`)
+}
+
+export const updateUserRole = async (userId: string, roleI: string): Promise<void> => {
+  await api.put(`/users/${userId}/role`, { role_id: roleI })
+}
+
+// Predictive Analytics APIs
+export const getPredictiveAnalytics = async (): Promise<PredictiveAnalyticsData> => {
+  const response = await api.get('/predictive-analytics')
+  return response.data
+}
+
+export const generatePredictions = async (model: string): Promise<void> => {
+  await api.post('/predictive-analytics/generate', { model })
+}
+
+export const exportPredictions = async (model: string): Promise<Blob> => {
+  const response = await api.get('/predictive-analytics/export', { 
+    params: { model },
+    responseType: 'blob' 
+  })
+  return response.data
+}
+
+// External Integration APIs
+export const getIntegrations = async (): Promise<Integration[]> => {
+  const response = await api.get('/integrations')
+  return response.data
+}
+
+export const createIntegration = async (integration: Integration): Promise<void> => {
+  await api.post('/integrations', integration)
+}
+
+export const updateIntegration = async (integrationId: string, integration: Integration): Promise<void> => {
+  await api.put(`/integrations/${integrationId}`, integration)
+}
+
+export const deleteIntegration = async (integrationId: string): Promise<void> => {
+  await api.delete(`/integrations/${integrationId}`)
+}
+
+export const testIntegration = async (integrationId: string): Promise<{ success: boolean; error?: string }> => {
+  const response = await api.post(`/integrations/${integrationId}/test`)
   return response.data
 }
