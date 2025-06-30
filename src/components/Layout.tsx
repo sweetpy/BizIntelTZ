@@ -14,7 +14,11 @@ import {
   ChevronDown,
   Database,
   MessageSquare,
-  Zap
+  Zap,
+  ShoppingBag,
+  Globe,
+  Sparkles,
+  GraduationCap
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import AlertSystem from './AlertSystem'
@@ -140,6 +144,57 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
                       >
                         Predictive Analytics
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Ecosystem Dropdown */}
+              {isAuthenticated && (
+                <div className="relative group">
+                  <button className="flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+                    <Sparkles className="h-4 w-4" />
+                    <span>Ecosystem</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                  <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="p-2">
+                      <Link
+                        to="/ecosystem/adaptive-ai"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Adaptive AI Insights
+                      </Link>
+                      <Link
+                        to="/ecosystem/community"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Community & Forums
+                      </Link>
+                      <Link
+                        to="/ecosystem/marketplace"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Business Marketplace
+                      </Link>
+                      <Link
+                        to="/ecosystem/seo-engine"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        SEO Content Engine
+                      </Link>
+                      <Link
+                        to="/ecosystem/ai-marketing"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        AI Marketing Assistant
+                      </Link>
+                      <Link
+                        to="/ecosystem/skill-building"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Skill-Building Platform
                       </Link>
                     </div>
                   </div>

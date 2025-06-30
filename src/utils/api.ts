@@ -28,7 +28,22 @@ import {
   Role,
   UserAccount,
   PredictiveAnalyticsData,
-  Integration
+  Integration,
+  AdaptiveInsights,
+  PersonalizedTip,
+  RankingSettings,
+  ForumPost,
+  CommunityTag,
+  MarketplaceListing,
+  Transaction,
+  SEOPage,
+  TrafficStats,
+  MarketingContent,
+  ContentSuggestion,
+  VisualAsset,
+  Course,
+  Webinar,
+  Certification
 } from '../types'
 
 const api = axios.create({
@@ -76,6 +91,7 @@ export const featureBusiness = async (id: string): Promise<void> => {
 
 // BI ID Verification APIs
 export const verifyBIID = async (biId: string): Promise<BIVerificationResult> => {
+  
   const response = await api.get(`/verify-bi/${biId}`)
   return response.data
 }
@@ -368,4 +384,117 @@ export const deleteIntegration = async (integrationId: string): Promise<void> =>
 export const testIntegration = async (integrationId: string): Promise<{ success: boolean; error?: string }> => {
   const response = await api.post(`/integrations/${integrationId}/test`)
   return response.data
+}
+
+// Adaptive AI APIs
+export const getAdaptiveInsights = async (): Promise<AdaptiveInsights> => {
+  const response = await api.get('/adaptive-ai/insights')
+  return response.data
+}
+
+export const getPersonalizedTips = async (): Promise<PersonalizedTip[]> => {
+  const response = await api.get('/adaptive-ai/tips')
+  return response.data
+}
+
+export const updateRankingSettings = async (settings: RankingSettings): Promise<void> => {
+  await api.post('/adaptive-ai/settings', settings)
+}
+
+// Community Forum APIs
+export const getForumPosts = async (category?: string): Promise<ForumPost[]> => {
+  const response = await api.get('/forum/posts', { params: { category } })
+  return response.data
+}
+
+export const getCommunityTags = async (): Promise<CommunityTag[]> => {
+  const response = await api.get('/forum/tags')
+  return response.data
+}
+
+export const createPost = async (post: any): Promise<void> => {
+  await api.post('/forum/posts', post)
+}
+
+export const voteOnPost = async (postId: string, voteType: 'up' | 'down'): Promise<void> => {
+  await api.post(`/forum/posts/${postId}/vote`, { type: voteType })
+}
+
+export const joinCommunity = async (tagName: string): Promise<void> => {
+  await api.post(`/forum/communities/${tagName}/join`)
+}
+
+// Marketplace APIs
+export const getMarketplaceListings = async (category?: string, type?: string): Promise<MarketplaceListing[]> => {
+  const response = await api.get('/marketplace/listings', { params: { category, type } })
+  return response.data
+}
+
+export const getTransactions = async (): Promise<Transaction[]> => {
+  const response = await api.get('/marketplace/transactions')
+  return response.data
+}
+
+export const createListing = async (listing: any): Promise<void> => {
+  await api.post('/marketplace/listings', listing)
+}
+
+// SEO Content Engine APIs
+export const getSEOPages = async (): Promise<SEOPage[]> => {
+  const response = await api.get('/seo/pages')
+  return response.data
+}
+
+export const getTrafficStats = async (): Promise<TrafficStats> => {
+  const response = await api.get('/seo/traffic')
+  return response.data
+}
+
+export const generateSEOContent = async (region: string, businessType: string): Promise<void> => {
+  await api.post('/seo/generate', { region, business_type: businessType })
+}
+
+export const createSEOPage = async (page: any): Promise<void> => {
+  await api.post('/seo/pages', page)
+}
+
+// AI Marketing Assistant APIs
+export const getMarketingContent = async (): Promise<MarketingContent[]> => {
+  const response = await api.get('/marketing/content')
+  return response.data
+}
+
+export const generateDescription = async (businessId: string): Promise<{ suggestions: ContentSuggestion[] }> => {
+  const response = await api.post('/marketing/generate/description', { business_id: businessId })
+  return response.data
+}
+
+export const generateVisuals = async (businessId: string): Promise<{ assets: VisualAsset[] }> => {
+  const response = await api.post('/marketing/generate/visuals', { business_id: businessId })
+  return response.data
+}
+
+export const optimizeContent = async (businessId: string, contentType: string): Promise<{ suggestions: ContentSuggestion[] }> => {
+  const response = await api.post('/marketing/optimize', { business_id: businessId, content_type: contentType })
+  return response.data
+}
+
+// Skill Building APIs
+export const getCourses = async (category?: string): Promise<Course[]> => {
+  const response = await api.get('/learning/courses', { params: { category } })
+  return response.data
+}
+
+export const getWebinars = async (): Promise<Webinar[]> => {
+  const response = await api.get('/learning/webinars')
+  return response.data
+}
+
+export const getCertifications = async (): Promise<Certification[]> => {
+  const response = await api.get('/learning/certifications')
+  return response.data
+}
+
+export const enrollInCourse = async (courseId: string): Promise<void> => {
+  await api.post(`/learning/courses/${courseId}/enroll`)
 }

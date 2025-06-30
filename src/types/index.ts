@@ -575,3 +575,214 @@ export interface Integration {
   total_calls?: number
   success_rate?: number
 }
+
+// Adaptive AI Types
+export interface AdaptiveInsights {
+  ranking_updates_today: number
+  last_ranking_update: string
+  anomalies_detected: number
+  tips_generated: number
+  ai_confidence: number
+  real_time_rankings: AIRankedBusiness[]
+  anomaly_alerts: AnomalyAlert[]
+}
+
+export interface AIRankedBusiness {
+  id: string
+  name: string
+  sector: string
+  region: string
+  ai_score: number
+  rank_change: number
+}
+
+export interface AnomalyAlert {
+  title: string
+  description: string
+  severity: 'low' | 'medium' | 'high'
+  business_name: string
+  timestamp: string
+}
+
+export interface PersonalizedTip {
+  title: string
+  description: string
+  category: string
+  impact: string
+}
+
+export interface RankingSettings {
+  weightDigitalScore: number
+  weightReviews: number
+  weightActivity: number
+  weightLocation: number
+  weightPremium: number
+  enableRealTimeUpdates: boolean
+  anomalyThreshold: number
+}
+
+// Community Forum Types
+export interface ForumPost {
+  id: string
+  title: string
+  content: string
+  category: string
+  author_name: string
+  upvotes: number
+  downvotes: number
+  replies_count: number
+  created_at: string
+  tags: string[]
+  is_featured: boolean
+}
+
+export interface CommunityTag {
+  name: string
+  member_count: number
+  is_member: boolean
+}
+
+export interface ForumCategory {
+  name: string
+  description: string
+  post_count: number
+}
+
+// Marketplace Types
+export interface MarketplaceListing {
+  id: string
+  title: string
+  description: string
+  category: string
+  type: 'product' | 'service' | 'promotion' | 'b2b-offer'
+  price: string
+  location: string
+  expiry_date: string
+  business_id: string
+  business_name: string
+  images: string[]
+}
+
+export interface MarketplaceCategory {
+  name: string
+  listing_count: number
+}
+
+export interface Transaction {
+  id: string
+  item_title: string
+  buyer_name: string
+  seller_name: string
+  amount: string
+  status: 'completed' | 'pending' | 'cancelled'
+  created_at: string
+}
+
+// SEO Content Engine Types
+export interface SEOPage {
+  id: string
+  title: string
+  url: string
+  meta_description: string
+  keywords: string
+  content_type: 'landing' | 'directory' | 'blog' | 'category'
+  region?: string
+  business_type?: string
+  monthly_visits: number
+  avg_position: number
+}
+
+export interface TrafficStats {
+  organic_visits: number
+  ranking_keywords: number
+  total_pageviews: number
+  top_pages: TopPage[]
+  top_keywords: TopKeyword[]
+}
+
+export interface TopPage {
+  title: string
+  url: string
+  visits: number
+}
+
+export interface TopKeyword {
+  keyword: string
+  position: number
+  search_volume: number
+}
+
+export interface SEOMetrics {
+  total_pages: number
+  indexed_pages: number
+  average_position: number
+  organic_traffic_growth: number
+}
+
+// AI Marketing Assistant Types
+export interface MarketingContent {
+  business_id: string
+  business_name: string
+  content_type: string
+  generated_at: string
+  performance_score: number
+}
+
+export interface ContentSuggestion {
+  title: string
+  content: string
+  type: string
+  confidence: number
+  tags: string[]
+}
+
+export interface VisualAsset {
+  title: string
+  description: string
+  type: 'image' | 'video' | 'graphic'
+  url: string
+  filename: string
+}
+
+// Skill Building Types
+export interface Course {
+  id: string
+  title: string
+  description: string
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  duration: number // in hours
+  price: number
+  rating: number
+  enrolled_count: number
+  is_enrolled: boolean
+  category: string
+}
+
+export interface Webinar {
+  id: string
+  title: string
+  description: string
+  scheduled_date: string
+  duration: number // in minutes
+  status: 'live' | 'upcoming' | 'recorded'
+  registered_count: number
+  instructor: string
+}
+
+export interface Certification {
+  id: string
+  title: string
+  description: string
+  duration: number // in weeks
+  price: number
+  prerequisites: string
+  issuer: string
+  validity_period: string
+}
+
+export interface UserProgress {
+  course_id: string
+  progress_percentage: number
+  completed_at?: string
+  certificate_earned: boolean
+}
