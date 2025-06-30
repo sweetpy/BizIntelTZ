@@ -1,8 +1,9 @@
 fastapi
-uvicorn
+uvicorn[standard]
+python-multipart
 pymongo
 python-dotenv
 jinja2
 requests
-bs4
+beautifulsoup4
 geopy
