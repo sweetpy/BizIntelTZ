@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, TrendingUp, Users, Award, Building2, ArrowRight, Star } from 'lucide-react'
+import { Search, TrendingUp, Users, Award, Building2, ArrowRight, Star, Plus } from 'lucide-react'
 import { searchBusinesses, getAnalytics } from '../utils/api'
 import { Business, AnalyticsData } from '../types'
 import BusinessCard from '../components/BusinessCard'
