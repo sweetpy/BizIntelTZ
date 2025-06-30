@@ -2,6 +2,7 @@ from typing import List, Optional
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from uuid import uuid4
 import csv
@@ -10,6 +11,15 @@ import random
 import datetime
 
 app = FastAPI(title="BizIntelTZ")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -84,9 +94,12 @@ fake_users_db = {
 }
 
 def authenticate_user(username: str, password: str):
+    print(f"Authenticating user: {username} with password: {password}")  # Debug log
     user = fake_users_db.get(username)
     if user and user["password"] == password:
+        print(f"Authentication successful for user: {username}")  # Debug log
         return user
+    print(f"Authentication failed for user: {username}")  # Debug log
     return None
 
 def generate_bi_id():
@@ -97,9 +110,12 @@ def generate_bi_id():
 
 @app.post("/token")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    print(f"Login attempt - Username: {form_data.username}")  # Debug log
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
+        print("Login failed - Invalid credentials")  # Debug log
         raise HTTPException(status_code=400, detail="Invalid credentials")
+    print("Login successful")  # Debug log
     return {"access_token": user["username"], "token_type": "bearer"}
 
 # Business Endpoints
@@ -341,6 +357,91 @@ async def admin_dashboard(token: str = Depends(oauth2_scheme)):
         "leads": len(leads),
         "verified_businesses": verified_businesses,
         "total_businesses": len(businesses)
+    }
+
+# Mock endpoints for rankings and leaderboard data
+@app.get("/rankings/leaderboard")
+async def get_leaderboard(region: Optional[str] = None, sector: Optional[str] = None):
+    # Generate mock leaderboard data
+    business_list = list(businesses.values())
+    if not business_list:
+        business_list = [
+            Business(
+                id="sample-1",
+                name="Sample Restaurant",
+                bi_id="BIZ-TZ-20241201-1001",
+                region="Dar es Salaam",
+                sector="Services",
+                digital_score=85,
+                premium=True,
+                verified=True,
+                claimed=True
+            ),
+            Business(
+                id="sample-2", 
+                name="Tech Solutions Ltd",
+                bi_id="BIZ-TZ-20241201-1002",
+                region="Arusha",
+                sector="Technology",
+                digital_score=78,
+                premium=False,
+                verified=False,
+                claimed=True
+            )
+        ]
+    
+    # Mock ranking data
+    ranked_businesses = []
+    for i, biz in enumerate(business_list[:10]):
+        ranked_businesses.append({
+            "id": biz.id,
+            "name": biz.name,
+            "bi_id": biz.bi_id,
+            "region": biz.region or "Unknown",
+            "sector": biz.sector or "General",
+            "digital_score": biz.digital_score or random.randint(40, 95),
+            "rank": i + 1,
+            "previous_rank": max(1, i + random.randint(-2, 3)),
+            "rank_change": random.randint(-5, 5),
+            "views_count": random.randint(100, 5000),
+            "reviews_count": random.randint(5, 50),
+            "average_rating": round(random.uniform(3.5, 5.0), 1),
+            "badges": [],
+            "buzz_score": random.randint(60, 95),
+            "market_share_percentage": round(random.uniform(2, 15), 1),
+            "sentiment_score": random.randint(70, 95),
+            "growth_rate": round(random.uniform(-5, 25), 1),
+            "premium": biz.premium,
+            "verified": biz.verified,
+            "claimed": biz.claimed
+        })
+    
+    return {
+        "overall_leaders": ranked_businesses,
+        "regional_leaders": [],
+        "sector_leaders": [],
+        "trending_businesses": ranked_businesses[:3],
+        "fastest_growing": ranked_businesses[:3],
+        "most_viewed": ranked_businesses[:3],
+        "top_rated": ranked_businesses[:3],
+        "recent_badge_winners": [
+            {
+                "business_id": "sample-1",
+                "business_name": "Sample Restaurant",
+                "badge": {
+                    "id": "top-rated",
+                    "name": "Top Rated",
+                    "icon": "star",
+                    "color": "#f59e0b",
+                    "description": "Highest customer satisfaction",
+                    "earned_date": datetime.datetime.now().isoformat(),
+                    "category": "quality"
+                },
+                "earned_date": datetime.datetime.now().isoformat(),
+                "region": "Dar es Salaam",
+                "sector": "Services"
+            }
+        ]
     }
 
 # Seed with sample business

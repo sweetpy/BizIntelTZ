@@ -37,12 +37,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      const formData = new FormData()
+      // Use URLSearchParams to create application/x-www-form-urlencoded data
+      const formData = new URLSearchParams()
       formData.append('username', username)
       formData.append('password', password)
 
       const response = await fetch('/api/token', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
         body: formData,
       })
 
@@ -53,6 +57,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(newUser))
         return true
       }
+      
+      // Log the response for debugging
+      const errorText = await response.text()
+      console.error('Login failed:', response.status, errorText)
       return false
     } catch (error) {
       console.error('Login error:', error)
