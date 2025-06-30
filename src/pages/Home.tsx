@@ -1,6 +1,43 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, TrendingUp, Users, Award, Building2, ArrowRight, Star, Plus, Trophy, Crown, Eye, Target, Zap, ChevronRight } from 'lucide-react'
+import { 
+  Building2, 
+  Search, 
+  Plus, 
+  Shield,
+  Brain,
+  ChevronDown,
+  Database,
+  MessageSquare,
+  Zap,
+  ShoppingBag,
+  Globe,
+  Sparkles,
+  GraduationCap,
+  Trophy,
+  Crown,
+  TrendingUp, 
+  Users, 
+  Award, 
+  Star, 
+  Eye, 
+  ArrowRight, 
+  ArrowUp, 
+  ArrowDown, 
+  Minus, 
+  Target, 
+  ChevronRight,
+  Fire,
+  AlertTriangle,
+  Clock,
+  Share2,
+  Bell,
+  Sword,
+  Skull,
+  ThumbsUp,
+  Activity,
+  BarChart3
+} from 'lucide-react'
 import { searchBusinesses, getAnalytics, getLeaderboardData } from '../utils/api'
 import { Business, AnalyticsData, LeaderboardData } from '../types'
 import BusinessCard from '../components/BusinessCard'
@@ -12,6 +49,11 @@ const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [liveUpdates, setLiveUpdates] = useState<any[]>([])
+  const [timeUntilNextRanking, setTimeUntilNextRanking] = useState<number>(0)
+  const [battleOfTheDay, setBattleOfTheDay] = useState<any>(null)
+  const [shameBoard, setShameBoard] = useState<any[]>([])
+  const [viralMoments, setViralMoments] = useState<any[]>([])
 
   // Mock data as fallback
   const mockAnalytics: AnalyticsData = {
@@ -86,6 +128,50 @@ const Home: React.FC = () => {
         premium: false,
         verified: true,
         claimed: true
+      },
+      {
+        id: "mock-4",
+        name: "Serengeti Safari Lodge",
+        bi_id: "BIZ-TZ-20241201-1004",
+        region: "Arusha",
+        sector: "Tourism",
+        digital_score: 82,
+        rank: 4,
+        previous_rank: 4,
+        rank_change: 0,
+        views_count: 1890,
+        reviews_count: 31,
+        average_rating: 4.5,
+        badges: [],
+        buzz_score: 79,
+        market_share_percentage: 7.1,
+        sentiment_score: 83,
+        growth_rate: 5.4,
+        premium: true,
+        verified: false,
+        claimed: true
+      },
+      {
+        id: "mock-5",
+        name: "Mwanza Fish Export Co",
+        bi_id: "BIZ-TZ-20241201-1005",
+        region: "Mwanza",
+        sector: "Trade",
+        digital_score: 78,
+        rank: 5,
+        previous_rank: 8,
+        rank_change: 3,
+        views_count: 1650,
+        reviews_count: 28,
+        average_rating: 4.3,
+        badges: [],
+        buzz_score: 82,
+        market_share_percentage: 6.8,
+        sentiment_score: 80,
+        growth_rate: 18.7,
+        premium: false,
+        verified: true,
+        claimed: false
       }
     ],
     regional_leaders: [],
@@ -114,44 +200,64 @@ const Home: React.FC = () => {
     ]
   }
 
-  const mockFeaturedBusinesses: Business[] = [
-    {
-      id: "featured-1",
-      name: "Premium Logistics Solutions",
-      bi_id: "BIZ-TZ-20241201-2001",
-      region: "Dar es Salaam",
-      sector: "Transport",
-      digital_score: 89,
-      premium: true,
-      verified: true,
-      claimed: true
-    },
-    {
-      id: "featured-2",
-      name: "Serengeti Safari Lodge",
-      bi_id: "BIZ-TZ-20241201-2002",
-      region: "Arusha",
-      sector: "Tourism",
-      digital_score: 86,
-      premium: true,
-      verified: true,
-      claimed: true
-    },
-    {
-      id: "featured-3",
-      name: "Mwanza Fish Export Co",
-      bi_id: "BIZ-TZ-20241201-2003",
-      region: "Mwanza",
-      sector: "Trade",
-      digital_score: 83,
-      premium: true,
-      verified: false,
-      claimed: true
-    }
+  // Mock live updates
+  const mockLiveUpdates = [
+    { type: 'rank_change', business: 'TechHub Dar es Salaam', change: '+1', timestamp: '2 min ago', severity: 'success' },
+    { type: 'new_review', business: 'Kilimanjaro Coffee Co', rating: 5, timestamp: '4 min ago', severity: 'info' },
+    { type: 'rank_drop', business: 'Zanzibar Tours & Travel', change: '-2', timestamp: '7 min ago', severity: 'danger' },
+    { type: 'new_business', business: 'Dodoma Transport Hub', timestamp: '12 min ago', severity: 'success' },
+    { type: 'badge_earned', business: 'Mwanza Fish Export Co', badge: 'Rising Star', timestamp: '15 min ago', severity: 'warning' }
+  ]
+
+  // Mock shame board (businesses losing ground)
+  const mockShameBoard = [
+    { name: 'Arusha Mills Ltd', rank_drop: -5, reason: 'No customer engagement for 2 weeks', score_loss: -12 },
+    { name: 'Coastal Logistics', rank_drop: -3, reason: 'Negative reviews flooding in', score_loss: -8 },
+    { name: 'Mbeya Agro Solutions', rank_drop: -7, reason: 'Competitors taking market share', score_loss: -15 }
+  ]
+
+  // Mock battle of the day
+  const mockBattleOfTheDay = {
+    business_a: { name: 'TechHub Dar es Salaam', score: 92, votes: 1247 },
+    business_b: { name: 'Kilimanjaro Coffee Co', score: 88, votes: 1156 },
+    ends_in: '4h 23m',
+    prize: 'Top Business Badge + Premium Features'
+  }
+
+  // Mock viral moments
+  const mockViralMoments = [
+    { business: 'TechHub Dar es Salaam', achievement: 'Reached #1 position', shares: 342, likes: 1250 },
+    { business: 'Serengeti Safari Lodge', achievement: 'Customer service excellence badge', shares: 189, likes: 890 },
+    { business: 'Mwanza Fish Export Co', achievement: 'Fastest growing business this week', shares: 156, likes: 675 }
   ]
 
   useEffect(() => {
     loadData()
+    
+    // Set up real-time updates
+    const interval = setInterval(() => {
+      setLiveUpdates(mockLiveUpdates)
+      setShameBoard(mockShameBoard)
+      setBattleOfTheDay(mockBattleOfTheDay)
+      setViralMoments(mockViralMoments)
+      
+      // Countdown to next ranking update (every hour)
+      const nextHour = new Date()
+      nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0)
+      const timeLeft = nextHour.getTime() - new Date().getTime()
+      setTimeUntilNextRanking(Math.floor(timeLeft / 1000))
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    // Countdown timer
+    const timer = setInterval(() => {
+      setTimeUntilNextRanking(prev => prev > 0 ? prev - 1 : 0)
+    }, 1000)
+
+    return () => clearInterval(timer)
   }, [])
 
   const loadData = async () => {
@@ -163,10 +269,10 @@ const Home: React.FC = () => {
       try {
         // Load featured businesses (premium businesses)
         const businesses = await searchBusinesses({ premium: true })
-        setFeaturedBusinesses(businesses.length > 0 ? businesses.slice(0, 6) : mockFeaturedBusinesses)
+        setFeaturedBusinesses(businesses.length > 0 ? businesses.slice(0, 6) : [])
       } catch (err) {
         console.log('Using mock featured businesses:', err)
-        setFeaturedBusinesses(mockFeaturedBusinesses)
+        setFeaturedBusinesses([])
       }
 
       try {
@@ -191,7 +297,7 @@ const Home: React.FC = () => {
       console.error('Error loading data:', error)
       setError('Failed to load some data. Showing demo content.')
       // Use all mock data as fallback
-      setFeaturedBusinesses(mockFeaturedBusinesses)
+      setFeaturedBusinesses([])
       setAnalytics(mockAnalytics)
       setLeaderboardData(mockLeaderboardData)
     } finally {
@@ -212,67 +318,133 @@ const Home: React.FC = () => {
     return { icon: Target, color: 'text-blue-600', bg: 'bg-blue-100' }
   }
 
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const secs = seconds % 60
+    return `${hours}h ${minutes}m ${secs}s`
+  }
+
+  const shareRanking = (business: any) => {
+    const text = `🚀 ${business.name} is ranked #${business.rank} in Tanzania! Check out the live business rankings on BizIntelTZ`
+    const url = `${window.location.origin}/business/${business.id}`
+    
+    if (navigator.share) {
+      navigator.share({ title: 'BizIntelTZ Rankings', text, url })
+    } else {
+      navigator.clipboard.writeText(`${text} ${url}`)
+      alert('Ranking shared to clipboard!')
+    }
+  }
+
   return (
-    <div className="space-y-16">
-      {/* Error Banner */}
-      {error && (
-        <div className="bg-warning-50 border-l-4 border-warning-400 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <p className="text-sm text-warning-700">
-                {error}
-              </p>
-            </div>
+    <div className="space-y-8">
+      {/* LIVE BREAKING NEWS BANNER */}
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-red-600 opacity-90"></div>
+        <div className="relative flex items-center justify-center space-x-4">
+          <div className="flex items-center space-x-2 animate-pulse">
+            <div className="w-3 h-3 bg-white rounded-full"></div>
+            <span className="font-bold text-lg">🔴 LIVE</span>
+          </div>
+          <div className="text-center">
+            <p className="font-semibold text-lg">
+              ⚡ RANKING UPDATE IN: {formatTime(timeUntilNextRanking)} ⚡ 
+              <span className="ml-4">🔥 {liveUpdates.length} BUSINESSES BATTLING RIGHT NOW! 🔥</span>
+            </p>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700 overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
+      {/* HERO - COMPETITIVE FOCUS */}
+      <section className="relative bg-gradient-to-br from-red-900 via-red-800 to-orange-700 overflow-hidden">
+        <div className="absolute inset-0 bg-black/30"></div>
         
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full animate-bounce-gentle"></div>
+          <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full animate-bounce"></div>
           <div className="absolute bottom-20 left-20 w-20 h-20 bg-warning-500/20 rounded-full animate-pulse"></div>
           <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-secondary-500/20 rounded-full animate-ping"></div>
         </div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center space-y-8">
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="flex justify-center">
-                <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-4">
-                  <Trophy className="h-5 w-5 text-warning-400" />
-                  <span className="text-white font-medium">Who's #1 in Your City?</span>
+                <div className="flex items-center space-x-3 bg-red-600/80 backdrop-blur-sm rounded-full px-6 py-3 mb-4">
+                  <Trophy className="h-6 w-6 text-warning-400 animate-bounce" />
+                  <span className="text-white font-bold text-xl">WHO RULES TANZANIA BUSINESS?</span>
+                  <Crown className="h-6 w-6 text-warning-400 animate-bounce" />
                 </div>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-white text-balance">
-                Discover Tanzania's
-                <span className="block text-primary-200">Top-Ranked Businesses</span>
+              
+              <h1 className="text-5xl md:text-7xl font-black text-white text-balance leading-tight">
+                <span className="block text-red-300">YOUR COMPETITORS</span>
+                <span className="block text-warning-300">ARE WATCHING</span>
+                <span className="block">YOU LOSE</span>
               </h1>
-              <p className="text-xl text-primary-100 max-w-3xl mx-auto text-balance">
-                Real-time rankings, competitive intelligence, and verified business data. 
-                See where you stand against competitors and climb to the top.
+              
+              <p className="text-2xl text-red-100 max-w-4xl mx-auto text-balance font-semibold">
+                🔥 LIVE RANKINGS UPDATE EVERY HOUR 🔥<br/>
+                See exactly where you stand against every competitor in Tanzania.<br/>
+                <span className="text-warning-300">Your customers are already checking...</span>
               </p>
             </div>
             
+            {/* LIVE BATTLE OF THE DAY */}
+            {battleOfTheDay && (
+              <div className="max-w-4xl mx-auto bg-black/50 backdrop-blur-sm rounded-2xl p-8 border-2 border-warning-500">
+                <div className="text-center mb-6">
+                  <h2 className="text-3xl font-bold text-warning-400 mb-2">⚔️ BATTLE OF THE DAY ⚔️</h2>
+                  <p className="text-white">Winner gets the crown! Voting ends in: <span className="text-red-300 font-bold">{battleOfTheDay.ends_in}</span></p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="text-center">
+                    <div className="bg-blue-600/80 rounded-xl p-6 mb-4">
+                      <h3 className="text-xl font-bold text-white mb-2">{battleOfTheDay.business_a.name}</h3>
+                      <div className="text-4xl font-black text-white">{battleOfTheDay.business_a.score}</div>
+                      <div className="text-blue-200">{battleOfTheDay.business_a.votes} votes</div>
+                    </div>
+                    <button className="btn bg-blue-600 text-white hover:bg-blue-700 font-bold">
+                      🗳️ VOTE NOW
+                    </button>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="bg-green-600/80 rounded-xl p-6 mb-4">
+                      <h3 className="text-xl font-bold text-white mb-2">{battleOfTheDay.business_b.name}</h3>
+                      <div className="text-4xl font-black text-white">{battleOfTheDay.business_b.score}</div>
+                      <div className="text-green-200">{battleOfTheDay.business_b.votes} votes</div>
+                    </div>
+                    <button className="btn bg-green-600 text-white hover:bg-green-700 font-bold">
+                      🗳️ VOTE NOW
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="text-center mt-6">
+                  <p className="text-warning-300 font-semibold">🏆 Prize: {battleOfTheDay.prize}</p>
+                </div>
+              </div>
+            )}
+            
             {/* Search Bar */}
-            <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
+            <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-primary-600" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400 group-focus-within:text-red-600" />
                 <input
                   type="text"
-                  placeholder="Search businesses, compare competitors, check rankings..."
+                  placeholder="🔍 SPY ON YOUR COMPETITORS... Find any business in Tanzania"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-32 py-4 text-lg rounded-xl border-0 shadow-lg focus:ring-2 focus:ring-primary-500 focus:shadow-xl transition-all duration-200"
+                  className="w-full pl-14 pr-40 py-5 text-xl rounded-2xl border-0 shadow-2xl focus:ring-4 focus:ring-red-500 focus:shadow-xl transition-all duration-200 bg-white/95"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 btn btn-primary px-6 py-2.5"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 btn bg-red-600 text-white hover:bg-red-700 px-8 py-3 font-bold"
                 >
-                  Search
+                  🕵️ SPY NOW
                 </button>
               </div>
             </form>
@@ -281,78 +453,146 @@ const Home: React.FC = () => {
             <div className="flex flex-wrap justify-center gap-4 mt-8">
               <Link
                 to="/rankings"
-                className="glass-effect rounded-xl px-6 py-3 text-white hover:bg-white/20 transition-all duration-200 flex items-center space-x-2"
+                className="glass-effect rounded-xl px-8 py-4 text-white hover:bg-white/20 transition-all duration-200 flex items-center space-x-3 font-bold"
               >
-                <Trophy className="h-5 w-5" />
-                <span>View Rankings</span>
+                <Trophy className="h-6 w-6 animate-bounce" />
+                <span>🔥 LIVE RANKINGS</span>
               </Link>
               <Link
                 to="/create-business"
-                className="glass-effect rounded-xl px-6 py-3 text-white hover:bg-white/20 transition-all duration-200 flex items-center space-x-2"
+                className="glass-effect rounded-xl px-8 py-4 text-white hover:bg-white/20 transition-all duration-200 flex items-center space-x-3 font-bold"
               >
-                <Plus className="h-5 w-5" />
-                <span>Claim Business</span>
+                <Sword className="h-6 w-6" />
+                <span>⚔️ JOIN THE BATTLE</span>
               </Link>
+              <button
+                onClick={() => window.open('/rankings?share=true', '_blank')}
+                className="glass-effect rounded-xl px-8 py-4 text-white hover:bg-white/20 transition-all duration-200 flex items-center space-x-3 font-bold"
+              >
+                <Share2 className="h-6 w-6" />
+                <span>📢 SHARE & SHAME</span>
+              </button>
             </div>
-            
-            {/* Stats */}
-            {analytics && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-12">
-                <div className="glass-effect rounded-xl p-6 text-center">
-                  <div className="text-3xl font-bold text-white mb-2">{analytics.views.toLocaleString()}</div>
-                  <div className="text-primary-200">Business Views</div>
-                </div>
-                <div className="glass-effect rounded-xl p-6 text-center">
-                  <div className="text-3xl font-bold text-white mb-2">{analytics.clicks.toLocaleString()}</div>
-                  <div className="text-primary-200">Profile Clicks</div>
-                </div>
-                <div className="glass-effect rounded-xl p-6 text-center">
-                  <div className="text-3xl font-bold text-white mb-2">{featuredBusinesses.length}+</div>
-                  <div className="text-primary-200">Ranked Businesses</div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </section>
 
-      {/* Live Leaderboard Widget */}
+      {/* LIVE ACTIVITY FEED */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-6 border-2 border-red-200">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
+              <Activity className="h-6 w-6 text-red-600 animate-pulse" />
+              <span>🔴 LIVE BUSINESS BATTLES</span>
+            </h2>
+            <div className="text-sm text-gray-600">Updates every 30 seconds</div>
+          </div>
+          
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {liveUpdates.map((update, index) => (
+              <div key={index} className={`flex items-center justify-between p-4 rounded-lg ${
+                update.severity === 'danger' ? 'bg-red-100 border-l-4 border-red-500' :
+                update.severity === 'success' ? 'bg-green-100 border-l-4 border-green-500' :
+                update.severity === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500' :
+                'bg-blue-100 border-l-4 border-blue-500'
+              }`}>
+                <div className="flex items-center space-x-3">
+                  {update.type === 'rank_change' && <TrendingUp className="h-5 w-5 text-green-600" />}
+                  {update.type === 'rank_drop' && <ArrowDown className="h-5 w-5 text-red-600" />}
+                  {update.type === 'new_review' && <Star className="h-5 w-5 text-yellow-600" />}
+                  {update.type === 'new_business' && <Plus className="h-5 w-5 text-blue-600" />}
+                  {update.type === 'badge_earned' && <Award className="h-5 w-5 text-purple-600" />}
+                  
+                  <div>
+                    <span className="font-semibold text-gray-900">{update.business}</span>
+                    <span className="text-gray-700 ml-2">
+                      {update.type === 'rank_change' && `jumped ${update.change} positions! 🚀`}
+                      {update.type === 'rank_drop' && `dropped ${update.change} positions 📉`}
+                      {update.type === 'new_review' && `got a ${update.rating}⭐ review!`}
+                      {update.type === 'new_business' && `joined the competition!`}
+                      {update.type === 'badge_earned' && `earned "${update.badge}" badge! 🏆`}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500">{update.timestamp}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SHAME BOARD - Public Humiliation */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-r from-red-900 to-red-800 rounded-2xl p-8 text-white">
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-bold mb-4 flex items-center justify-center space-x-3">
+              <Skull className="h-8 w-8 text-red-300" />
+              <span>💀 WALL OF SHAME 💀</span>
+              <Skull className="h-8 w-8 text-red-300" />
+            </h2>
+            <p className="text-red-200 text-xl">These businesses are LOSING ground to their competitors!</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {shameBoard.map((business, index) => (
+              <div key={index} className="bg-red-800/50 rounded-xl p-6 border-2 border-red-600">
+                <div className="text-center">
+                  <div className="text-6xl mb-4">😱</div>
+                  <h3 className="font-bold text-xl mb-2">{business.name}</h3>
+                  <div className="text-red-300 text-lg font-semibold mb-2">
+                    Rank Drop: {business.rank_drop} positions
+                  </div>
+                  <div className="text-red-200 text-sm mb-3">{business.reason}</div>
+                  <div className="text-warning-300 font-bold">
+                    Lost {business.score_loss} points this week!
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="text-center mt-8">
+            <p className="text-red-200 text-lg">📢 Don't let YOUR business end up here!</p>
+            <Link to="/create-business" className="btn bg-warning-600 text-white hover:bg-warning-700 mt-4 font-bold text-xl px-8 py-4">
+              🛡️ DEFEND YOUR RANKING
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* LIVE LEADERBOARD WITH OBSESSION FEATURES */}
       {leaderboardData && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
-              <div className="p-3 bg-gradient-to-r from-warning-500 to-warning-600 rounded-xl">
-                <Trophy className="h-8 w-8 text-white" />
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-gradient-to-r from-warning-500 to-warning-600 rounded-xl animate-pulse">
+                <Trophy className="h-16 w-16 text-white" />
               </div>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Live Business Rankings
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+              ⚡ LIVE POWER RANKINGS ⚡
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              See who's dominating the market right now. Rankings update in real-time based on views, reviews, and digital presence.
+            <p className="text-2xl text-gray-600 max-w-4xl mx-auto font-semibold">
+              🔥 Updates every hour! 🔥 See who's CRUSHING the competition right now.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Overall Leaders */}
+            {/* Main Rankings */}
             <div className="lg:col-span-2">
-              <div className="card">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-semibold text-gray-900 flex items-center space-x-2">
-                      <Crown className="h-5 w-5 text-warning-500" />
-                      <span>Overall Leaders</span>
+              <div className="card border-4 border-warning-500">
+                <div className="p-8">
+                  <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center space-x-3">
+                      <Crown className="h-6 w-6 text-warning-500 animate-bounce" />
+                      <span>👑 THE DOMINATORS</span>
                     </h3>
-                    <Link
-                      to="/rankings"
-                      className="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center space-x-1"
-                    >
-                      <span>View Full Rankings</span>
-                      <ChevronRight className="h-4 w-4" />
-                    </Link>
+                    <div className="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-full font-semibold">
+                      Next update: {formatTime(timeUntilNextRanking)}
+                    </div>
                   </div>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {leaderboardData.overall_leaders.slice(0, 5).map((business, index) => {
                       const badge = getRankBadge(business.rank)
                       const IconComponent = badge.icon
@@ -360,33 +600,91 @@ const Home: React.FC = () => {
                       return (
                         <div
                           key={business.id}
-                          className={`flex items-center justify-between p-4 rounded-lg transition-all hover:shadow-md ${
-                            index < 3 
-                              ? 'bg-gradient-to-r from-warning-50 to-warning-100 border-l-4 border-warning-500' 
-                              : 'bg-gray-50 hover:bg-gray-100'
+                          className={`flex items-center justify-between p-6 rounded-xl transition-all hover:shadow-lg border-2 ${
+                            index === 0 
+                              ? 'bg-gradient-to-r from-warning-50 to-warning-100 border-warning-500 shadow-lg' 
+                              : index < 3
+                              ? 'bg-gradient-to-r from-orange-50 to-orange-100 border-orange-300'
+                              : 'bg-gray-50 hover:bg-gray-100 border-gray-200'
                           }`}
                         >
                           <div className="flex items-center space-x-4">
-                            <div className={`flex items-center justify-center w-10 h-10 rounded-full ${badge.bg}`}>
-                              <IconComponent className={`h-5 w-5 ${badge.color}`} />
+                            <div className={`flex items-center justify-center w-12 h-12 rounded-full font-black text-xl ${
+                              index === 0 ? 'bg-warning-500 text-white animate-pulse' :
+                              index === 1 ? 'bg-gray-400 text-white' :
+                              index === 2 ? 'bg-orange-600 text-white' :
+                              'bg-gray-200 text-gray-700'
+                            }`}>
+                              {index === 0 ? <Crown className="h-6 w-6" /> : business.rank}
                             </div>
-                            <div>
-                              <Link
-                                to={`/business/${business.id}`}
-                                className="font-semibold text-gray-900 hover:text-primary-600 transition-colors"
-                              >
-                                {business.name}
-                              </Link>
-                              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <Link
+                                  to={`/business/${business.id}`}
+                                  className="font-bold text-xl text-gray-900 hover:text-primary-600 transition-colors"
+                                >
+                                  {business.name}
+                                </Link>
+                                {index === 0 && <span className="text-2xl animate-bounce">👑</span>}
+                                {business.verified && (
+                                  <div className="flex items-center space-x-1 bg-success-100 px-2 py-1 rounded-full">
+                                    <Star className="h-3 w-3 text-success-600" />
+                                    <span className="text-xs font-medium text-success-600">Verified</span>
+                                  </div>
+                                )}
+                                {business.premium && (
+                                  <div className="flex items-center space-x-1 bg-secondary-100 px-2 py-1 rounded-full">
+                                    <Crown className="h-3 w-3 text-secondary-600" />
+                                    <span className="text-xs font-medium text-secondary-600">Premium</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-4 text-sm text-gray-600">
                                 <span>{business.sector}</span>
                                 <span>•</span>
                                 <span>{business.region}</span>
+                                <span>•</span>
+                                <span className="flex items-center space-x-1">
+                                  <Eye className="h-3 w-3" />
+                                  <span>{business.views_count.toLocaleString()} stalkers</span>
+                                </span>
                               </div>
                             </div>
                           </div>
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-primary-600">#{business.rank}</div>
-                            <div className="text-xs text-gray-600">{business.views_count} views</div>
+                          
+                          <div className="flex items-center space-x-6">
+                            <div className="text-center">
+                              <div className="text-2xl font-black text-primary-600">{business.digital_score}</div>
+                              <div className="text-xs text-gray-600">Power Score</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="flex items-center space-x-1">
+                                <Star className="h-4 w-4 text-warning-500 fill-current" />
+                                <span className="font-medium">{business.average_rating.toFixed(1)}</span>
+                              </div>
+                              <div className="text-xs text-gray-600">{business.reviews_count} reviews</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="flex items-center space-x-1">
+                                {business.rank_change > 0 && <ArrowUp className="h-4 w-4 text-success-600" />}
+                                {business.rank_change < 0 && <ArrowDown className="h-4 w-4 text-error-600" />}
+                                {business.rank_change === 0 && <Minus className="h-4 w-4 text-gray-400" />}
+                                <span className={`font-bold ${
+                                  business.rank_change > 0 ? 'text-success-600' :
+                                  business.rank_change < 0 ? 'text-error-600' : 'text-gray-600'
+                                }`}>
+                                  {business.rank_change !== 0 ? Math.abs(business.rank_change) : '—'}
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-600">vs last hour</div>
+                            </div>
+                            <button
+                              onClick={() => shareRanking(business)}
+                              className="btn bg-red-600 text-white hover:bg-red-700 text-sm px-4 py-2 font-bold"
+                            >
+                              📢 EXPOSE
+                            </button>
                           </div>
                         </div>
                       )
@@ -396,30 +694,29 @@ const Home: React.FC = () => {
               </div>
             </div>
 
-            {/* Trending & Quick Stats */}
+            {/* Viral Moments & Competition Alerts */}
             <div className="space-y-6">
-              {/* Trending Businesses */}
-              <div className="card">
+              {/* Viral Moments */}
+              <div className="card border-2 border-green-500">
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                    <TrendingUp className="h-5 w-5 text-success-600" />
-                    <span>Trending Now</span>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
+                    <Fire className="h-5 w-5 text-red-500" />
+                    <span>🔥 VIRAL MOMENTS</span>
                   </h3>
-                  <div className="space-y-3">
-                    {leaderboardData.overall_leaders.slice(0, 3).map((business, index) => (
-                      <div key={business.id} className="flex items-center justify-between">
-                        <div>
-                          <Link
-                            to={`/business/${business.id}`}
-                            className="font-medium text-gray-900 hover:text-primary-600 transition-colors"
-                          >
-                            {business.name}
-                          </Link>
-                          <p className="text-sm text-gray-600">{business.sector}</p>
-                        </div>
-                        <div className="flex items-center space-x-1 text-success-600">
-                          <TrendingUp className="h-4 w-4" />
-                          <span className="text-sm font-medium">+{business.growth_rate}%</span>
+                  <div className="space-y-4">
+                    {viralMoments.map((moment, index) => (
+                      <div key={index} className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
+                        <h4 className="font-semibold text-gray-900">{moment.business}</h4>
+                        <p className="text-sm text-gray-700">{moment.achievement}</p>
+                        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-600">
+                          <span className="flex items-center space-x-1">
+                            <Share2 className="h-3 w-3" />
+                            <span>{moment.shares} shares</span>
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <ThumbsUp className="h-3 w-3" />
+                            <span>{moment.likes} likes</span>
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -427,204 +724,80 @@ const Home: React.FC = () => {
                 </div>
               </div>
 
-              {/* Quick Categories */}
-              <div className="card">
+              {/* Competition Alerts */}
+              <div className="card border-2 border-red-500">
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Rankings</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
+                    <Bell className="h-5 w-5 text-red-500 animate-pulse" />
+                    <span>🚨 THREAT ALERTS</span>
+                  </h3>
                   <div className="space-y-3">
-                    <Link
-                      to="/rankings?category=fastest_growing"
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Zap className="h-4 w-4 text-warning-600" />
-                        <span className="text-sm font-medium">Fastest Growing</span>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-gray-400" />
-                    </Link>
-                    <Link
-                      to="/rankings?category=most_viewed"
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Eye className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm font-medium">Most Viewed</span>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-gray-400" />
-                    </Link>
-                    <Link
-                      to="/rankings?category=top_rated"
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Star className="h-4 w-4 text-success-600" />
-                        <span className="text-sm font-medium">Top Rated</span>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-gray-400" />
-                    </Link>
+                    <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                      <p className="text-sm font-semibold text-red-900">New competitor detected!</p>
+                      <p className="text-xs text-red-700">TechStart Solutions just entered your market</p>
+                    </div>
+                    <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                      <p className="text-sm font-semibold text-yellow-900">Ranking threat!</p>
+                      <p className="text-xs text-yellow-700">Arusha Coffee Co is gaining ground fast</p>
+                    </div>
+                    <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                      <p className="text-sm font-semibold text-orange-900">Review bombing alert!</p>
+                      <p className="text-xs text-orange-700">Someone is targeting businesses in your sector</p>
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              <div className="text-center">
+                <Link
+                  to="/rankings"
+                  className="btn bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 font-bold text-lg px-8 py-4 w-full"
+                >
+                  ⚔️ JOIN THE WAR
+                </Link>
               </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* Badge Wall */}
-      {leaderboardData && leaderboardData.recent_badge_winners.length > 0 && (
-        <section className="bg-gradient-to-r from-gray-50 to-gray-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest Champions</h2>
-              <p className="text-xl text-gray-600">Celebrating businesses that earned new badges this week</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {leaderboardData.recent_badge_winners.slice(0, 6).map((winner) => (
-                <div key={`${winner.business_id}-${winner.badge.id}`} className="card hover:shadow-lg transition-all duration-300 group">
-                  <div className="p-6 text-center">
-                    <div className="flex justify-center mb-4">
-                      <div
-                        className="p-4 rounded-full transition-transform group-hover:scale-110"
-                        style={{ backgroundColor: `${winner.badge.color}20` }}
-                      >
-                        <Award className="h-8 w-8" style={{ color: winner.badge.color }} />
-                      </div>
-                    </div>
-                    <h3 className="font-bold text-gray-900 mb-2" style={{ color: winner.badge.color }}>
-                      {winner.badge.name}
-                    </h3>
-                    <Link
-                      to={`/business/${winner.business_id}`}
-                      className="text-lg font-semibold text-gray-900 hover:text-primary-600 transition-colors block mb-2"
-                    >
-                      {winner.business_name}
-                    </Link>
-                    <p className="text-sm text-gray-600 mb-3">{winner.sector} • {winner.region}</p>
-                    <p className="text-xs text-gray-500">
-                      Earned {new Date(winner.earned_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Features Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Why Rankings Matter
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Understand your competitive position and discover opportunities to grow your business visibility
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="card p-6 text-center group hover:shadow-lg transition-all duration-300">
-            <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-200 transition-colors">
-              <Trophy className="h-6 w-6 text-primary-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Live Rankings</h3>
-            <p className="text-gray-600">Real-time business rankings across regions and sectors with instant updates.</p>
-          </div>
-          
-          <div className="card p-6 text-center group hover:shadow-lg transition-all duration-300">
-            <div className="w-12 h-12 bg-success-100 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-success-200 transition-colors">
-              <Target className="h-6 w-6 text-success-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Competitor Analysis</h3>
-            <p className="text-gray-600">Compare your business against competitors and track their performance.</p>
-          </div>
-          
-          <div className="card p-6 text-center group hover:shadow-lg transition-all duration-300">
-            <div className="w-12 h-12 bg-warning-100 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-warning-200 transition-colors">
-              <Award className="h-6 w-6 text-warning-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Prestige Badges</h3>
-            <p className="text-gray-600">Earn recognition badges for achievements and showcase your success.</p>
-          </div>
-          
-          <div className="card p-6 text-center group hover:shadow-lg transition-all duration-300">
-            <div className="w-12 h-12 bg-secondary-100 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-secondary-200 transition-colors">
-              <TrendingUp className="h-6 w-6 text-secondary-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Market Intelligence</h3>
-            <p className="text-gray-600">Get insights into market trends and discover growth opportunities.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Businesses */}
-      {featuredBusinesses.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Featured Businesses</h2>
-              <p className="text-gray-600">Premium listings with enhanced visibility and features</p>
-            </div>
-            <Link
-              to="/search?premium=true"
-              className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 font-medium transition-colors"
-            >
-              <span>View All Premium</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="card p-6 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredBusinesses.map((business) => (
-                <BusinessCard key={business.id} business={business} />
-              ))}
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* Call to Action */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-700 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-secondary-600/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* OBSESSION CALL TO ACTION */}
+      <section className="bg-gradient-to-r from-black to-red-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-orange-600/20"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center space-y-8">
-            <div className="space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold text-white">
-                Ready to Dominate Your Market?
+            <div className="space-y-6">
+              <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">
+                YOUR COMPETITORS<br/>
+                <span className="text-red-400">CHECK THIS PAGE</span><br/>
+                <span className="text-warning-400">EVERY HOUR</span>
               </h2>
-              <p className="text-xl text-primary-100 max-w-2xl mx-auto">
-                Claim your business, optimize your profile, and watch your ranking soar. 
-                Join thousands of businesses competing for the top spot.
+              <p className="text-2xl text-red-100 max-w-3xl mx-auto font-bold">
+                🔥 DON'T LET THEM WIN 🔥<br/>
+                Claim your business NOW and start climbing the rankings.<br/>
+                <span className="text-warning-300">Every second you wait, they get ahead.</span>
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link
                 to="/create-business"
-                className="btn btn-secondary text-lg px-8 py-3 shadow-lg hover:shadow-xl"
+                className="btn bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 text-2xl px-12 py-6 shadow-2xl hover:shadow-3xl font-black"
               >
-                <Plus className="h-5 w-5 mr-2" />
-                Claim Your Business
+                ⚔️ CLAIM & DOMINATE
               </Link>
               <Link
                 to="/rankings"
-                className="btn btn-secondary text-lg px-8 py-3 bg-white/10 border-white/20 text-white hover:bg-white/20 shadow-lg hover:shadow-xl"
+                className="btn bg-gradient-to-r from-warning-600 to-warning-700 text-white hover:from-warning-700 hover:to-warning-800 text-2xl px-12 py-6 shadow-2xl hover:shadow-3xl font-black"
               >
-                <Trophy className="h-5 w-5 mr-2" />
-                View Rankings
+                👁️ SPY ON COMPETITORS
               </Link>
+            </div>
+            
+            <div className="mt-12">
+              <p className="text-red-200 text-lg font-semibold">
+                ⏰ Rankings update in: <span className="text-warning-300 text-2xl font-black">{formatTime(timeUntilNextRanking)}</span>
+              </p>
             </div>
           </div>
         </div>
