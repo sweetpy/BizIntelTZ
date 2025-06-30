@@ -11,7 +11,15 @@ import {
   AnalyticsData,
   AdminStats,
   BIVerificationResult,
-  BIVerificationRequest
+  BIVerificationRequest,
+  MarketMappingData,
+  CreditworthinessData,
+  CreditReport,
+  DistributionData,
+  LeadGenerationData,
+  InformalEconomyData,
+  BusinessChangeData,
+  CompetitiveIntelligenceData
 } from '../types'
 
 const api = axios.create({
@@ -146,5 +154,96 @@ export const getLeads = async (): Promise<Lead[]> => {
 // Admin
 export const getAdminStats = async (): Promise<AdminStats> => {
   const response = await api.get('/admin')
+  return response.data
+}
+
+// Market Mapping APIs
+export const getMarketMapping = async (region?: string, sector?: string): Promise<MarketMappingData> => {
+  const response = await api.get('/market-mapping', { params: { region, sector } })
+  return response.data
+}
+
+export const exportMarketData = async (region?: string, sector?: string): Promise<Blob> => {
+  const response = await api.get('/market-mapping/export', { 
+    params: { region, sector },
+    responseType: 'blob' 
+  })
+  return response.data
+}
+
+// Creditworthiness APIs
+export const getCreditworthinessData = async (): Promise<CreditworthinessData> => {
+  const response = await api.get('/creditworthiness')
+  return response.data
+}
+
+export const getCreditReport = async (businessId: string): Promise<CreditReport> => {
+  const response = await api.get(`/creditworthiness/report/${businessId}`)
+  return response.data
+}
+
+// Distribution & Heatmap APIs
+export const getDistributionData = async (metric: string, sector?: string): Promise<DistributionData> => {
+  const response = await api.get('/distribution', { params: { metric, sector } })
+  return response.data
+}
+
+export const getRetailDensity = async (region?: string): Promise<any> => {
+  const response = await api.get('/distribution/retail-density', { params: { region } })
+  return response.data
+}
+
+// Lead Generation APIs
+export const getLeadGenerationData = async (): Promise<LeadGenerationData> => {
+  const response = await api.get('/lead-generation')
+  return response.data
+}
+
+export const generateLeads = async (criteria: any): Promise<any> => {
+  const response = await api.post('/lead-generation/generate', criteria)
+  return response.data
+}
+
+export const exportLeads = async (format: string): Promise<Blob> => {
+  const response = await api.get(`/lead-generation/export`, { 
+    params: { format },
+    responseType: 'blob' 
+  })
+  return response.data
+}
+
+// Informal Economy APIs
+export const getInformalEconomyData = async (): Promise<InformalEconomyData> => {
+  const response = await api.get('/informal-economy')
+  return response.data
+}
+
+export const exportInformalEconomyReport = async (): Promise<Blob> => {
+  const response = await api.get('/informal-economy/export', { responseType: 'blob' })
+  return response.data
+}
+
+// Business Change Monitoring APIs
+export const getBusinessChanges = async (): Promise<BusinessChangeData> => {
+  const response = await api.get('/business-changes')
+  return response.data
+}
+
+export const subscribeToChanges = async (businessId: string): Promise<any> => {
+  const response = await api.post(`/business-changes/subscribe/${businessId}`)
+  return response.data
+}
+
+// Competitive Intelligence APIs
+export const getCompetitiveIntelligence = async (sector?: string): Promise<CompetitiveIntelligenceData> => {
+  const response = await api.get('/competitive-intelligence', { params: { sector } })
+  return response.data
+}
+
+export const exportCompetitiveReport = async (sector: string): Promise<Blob> => {
+  const response = await api.get(`/competitive-intelligence/export`, { 
+    params: { sector },
+    responseType: 'blob' 
+  })
   return response.data
 }

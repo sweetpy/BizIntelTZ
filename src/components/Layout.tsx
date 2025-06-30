@@ -1,6 +1,18 @@
 import React, { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Building2, Search, Plus, BarChart3, Users, Settings, LogOut, User, Shield } from 'lucide-react'
+import { 
+  Building2, 
+  Search, 
+  Plus, 
+  BarChart3, 
+  Users, 
+  Settings, 
+  LogOut, 
+  User, 
+  Shield,
+  Brain,
+  ChevronDown
+} from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 interface LayoutProps {
@@ -30,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">BizIntelTZ</h1>
-                <p className="text-xs text-gray-500">Business Intelligence</p>
+                <p className="text-xs text-gray-500">Business Intelligence Engine</p>
               </div>
             </Link>
 
@@ -66,6 +78,64 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 Verify BI ID
               </Link>
+              
+              {/* Intelligence Dropdown */}
+              {isAuthenticated && (
+                <div className="relative group">
+                  <button className="flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+                    <Brain className="h-4 w-4" />
+                    <span>Intelligence</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                  <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="p-2">
+                      <Link
+                        to="/intelligence/market-mapping"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Market Mapping & Penetration
+                      </Link>
+                      <Link
+                        to="/intelligence/creditworthiness"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Creditworthiness Intelligence
+                      </Link>
+                      <Link
+                        to="/intelligence/distribution"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Distribution Heatmaps
+                      </Link>
+                      <Link
+                        to="/intelligence/lead-generation"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Lead Generation API
+                      </Link>
+                      <Link
+                        to="/intelligence/informal-economy"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Informal Economy Analytics
+                      </Link>
+                      <Link
+                        to="/intelligence/business-monitoring"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Business Change Monitoring
+                      </Link>
+                      <Link
+                        to="/intelligence/competitive"
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        Competitive Intelligence
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <Link
                 to="/create-business"
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -132,11 +202,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">BizIntelTZ</h3>
-                  <p className="text-xs text-gray-500">Business Intelligence</p>
+                  <p className="text-xs text-gray-500">Business Intelligence Engine</p>
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-                Empowering Tanzanian businesses with comprehensive intelligence, verified BI IDs, and secure verification systems.
+                Empowering Tanzanian businesses with comprehensive intelligence, verified BI IDs, and advanced analytics.
               </p>
             </div>
             
@@ -150,11 +220,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
             
             <div>
-              <h4 className="font-semibold text-gray-900 mb-4">BI ID System</h4>
+              <h4 className="font-semibold text-gray-900 mb-4">Intelligence</h4>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-gray-900 transition-colors">For Banks</a></li>
-                <li><a href="#" className="hover:text-gray-900 transition-colors">For Businesses</a></li>
-                <li><a href="#" className="hover:text-gray-900 transition-colors">Verification Guide</a></li>
+                <li><a href="#" className="hover:text-gray-900 transition-colors">Market Mapping</a></li>
+                <li><a href="#" className="hover:text-gray-900 transition-colors">Credit Intelligence</a></li>
+                <li><a href="#" className="hover:text-gray-900 transition-colors">Distribution Analysis</a></li>
               </ul>
             </div>
             
@@ -170,7 +240,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           <div className="mt-8 pt-8 border-t border-gray-200">
             <p className="text-sm text-gray-500 text-center">
-              © 2024 BizIntelTZ. All rights reserved. | Secure Business Verification with BI ID System
+              © 2024 BizIntelTZ. All rights reserved. | Advanced Business Intelligence & Verification System
             </p>
           </div>
         </div>

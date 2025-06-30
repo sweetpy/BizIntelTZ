@@ -11,6 +11,13 @@ import ClaimsManagement from './pages/ClaimsManagement'
 import Analytics from './pages/Analytics'
 import LeadsManagement from './pages/LeadsManagement'
 import BIVerification from './pages/BIVerification'
+import MarketMapping from './pages/MarketMapping'
+import CreditworthinessIntelligence from './pages/CreditworthinessIntelligence'
+import DistributionHeatmaps from './pages/DistributionHeatmaps'
+import LeadGeneration from './pages/LeadGeneration'
+import InformalEconomyAnalytics from './pages/InformalEconomyAnalytics'
+import BusinessChangeMonitoring from './pages/BusinessChangeMonitoring'
+import CompetitiveIntelligence from './pages/CompetitiveIntelligence'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -61,6 +68,62 @@ function App() {
           element={
             <ProtectedRoute>
               <LeadsManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/intelligence/market-mapping"
+          element={
+            <ProtectedRoute>
+              <MarketMapping />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/intelligence/creditworthiness"
+          element={
+            <ProtectedRoute>
+              <CreditworthinessIntelligence />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/intelligence/distribution"
+          element={
+            <ProtectedRoute>
+              <DistributionHeatmaps />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/intelligence/lead-generation"
+          element={
+            <ProtectedRoute>
+              <LeadGeneration />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/intelligence/informal-economy"
+          element={
+            <ProtectedRoute>
+              <InformalEconomyAnalytics />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/intelligence/business-monitoring"
+          element={
+            <ProtectedRoute>
+              <BusinessChangeMonitoring />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/intelligence/competitive"
+          element={
+            <ProtectedRoute>
+              <CompetitiveIntelligence />
             </ProtectedRoute>
           }
         />
