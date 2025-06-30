@@ -382,8 +382,8 @@ export const deleteRole = async (roleId: string): Promise<void> => {
   await api.delete(`/roles/${roleId}`)
 }
 
-export const updateUserRole = async (userId: string, roleI: string): Promise<void> => {
-  await api.put(`/users/${userId}/role`, { role_id: roleI })
+export const updateUserRole = async (userId: string, roleId: string): Promise<void> => {
+  await api.put(`/users/${userId}/role`, { role_id: roleId })
 }
 
 // Predictive Analytics APIs
