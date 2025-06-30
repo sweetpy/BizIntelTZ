@@ -29,6 +29,7 @@ import Marketplace from './pages/Marketplace'
 import SEOContentEngine from './pages/SEOContentEngine'
 import AIMarketingAssistant from './pages/AIMarketingAssistant'
 import SkillBuilding from './pages/SkillBuilding'
+import CrawlerManagement from './pages/CrawlerManagement'
 import Rankings from './pages/Rankings'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -113,6 +114,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ExternalIntegrations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/crawler"
+          element={
+            <ProtectedRoute>
+              <CrawlerManagement />
             </ProtectedRoute>
           }
         />

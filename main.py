@@ -9,9 +9,24 @@ import csv
 import io
 import random
 import datetime
+import logging
+import asyncio
 
 from database import Database
 from crawler import crawl_site
+from crawler_engine import start_crawler_service, stop_crawler_service
+import crawler_api
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("bizinteltz.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="BizIntelTZ")
 
@@ -23,6 +38,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include the crawler API router
+app.include_router(crawler_api.router)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -483,9 +501,31 @@ if not businesses:
         claimed=True
     )
 
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Starting BizIntelTZ API server")
+    
+    # Start the crawler service
+    try:
+        start_crawler_service()
+        logger.info("Crawler service started successfully")
+    except Exception as e:
+        logger.error(f"Failed to start crawler service: {str(e)}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("Shutting down BizIntelTZ API server")
+    
+    # Stop the crawler service
+    try:
+        stop_crawler_service()
+        logger.info("Crawler service stopped successfully")
+    except Exception as e:
+        logger.error(f"Failed to stop crawler service: {str(e)}")
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 from fastapi import Request
 import subprocess

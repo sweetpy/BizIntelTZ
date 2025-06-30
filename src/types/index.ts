@@ -97,6 +97,40 @@ export interface BIVerificationRequest {
   purpose: string
 }
 
+// Crawler Types
+export interface CrawlTarget {
+  name: string
+  start_urls: string[]
+  allowed_domains: string[]
+  max_depth: number
+  max_pages: number
+  delay_range: [number, number]
+  business_selectors: string[]
+  active: boolean
+  last_crawl?: string
+  next_crawl?: string
+  crawl_interval_hours: number
+}
+
+export interface CrawlResult {
+  target_name: string
+  start_time: string
+  end_time: string
+  pages_crawled: number
+  businesses_found: number
+  errors: string[]
+  success: boolean
+}
+
+export interface CrawlerStatus {
+  running: boolean
+  total_targets: number
+  active_targets: number
+  due_targets: number
+  due_target_names: string[]
+  next_crawl_times: Record<string, string | null>
+}
+
 // Rankings & Leaderboard Types
 export interface BusinessRanking {
   id: string

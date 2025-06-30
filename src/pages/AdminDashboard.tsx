@@ -12,7 +12,8 @@ import {
   Search,
   Plus,
   Shield,
-  ShieldCheck
+  ShieldCheck,
+  Bot
 } from 'lucide-react'
 import { getAdminStats, scrapeBusinesses } from '../utils/api'
 import { AdminStats } from '../types'
@@ -196,7 +197,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Data Scraping */}
+      {/* Data Collection Tools */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="card">
           <div className="p-6">
@@ -275,6 +276,19 @@ const AdminDashboard: React.FC = () => {
             </div>
             
             <div className="space-y-3">
+              <Link
+                to="/admin/crawler"
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <Bot className="h-4 w-4 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-900">Manage 24/7 Crawler</span>
+                </div>
+                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                  New
+                </span>
+              </Link>
+              
               <Link
                 to="/admin/claims"
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"

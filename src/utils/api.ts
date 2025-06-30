@@ -49,7 +49,10 @@ import {
   CompetitorComparison,
   BuzzMeterData,
   VisibilityHeatmap,
-  CompetitiveAlert
+  CompetitiveAlert,
+  CrawlTarget,
+  CrawlerStatus,
+  CrawlResult
 } from '../types'
 
 const api = axios.create({
@@ -93,6 +96,38 @@ export const getBusinessProfile = async (id: string): Promise<Business> => {
 
 export const featureBusiness = async (id: string): Promise<void> => {
   await api.post(`/admin/feature?biz_id=${id}`)
+}
+
+// Crawler APIs
+export const getCrawlerStatus = async (): Promise<CrawlerStatus> => {
+  const response = await api.get('/crawler/status')
+  return response.data
+}
+
+export const getCrawlTargets = async (): Promise<CrawlTarget[]> => {
+  const response = await api.get('/crawler/targets')
+  return response.data
+}
+
+export const runCrawl = async (targetName: string): Promise<CrawlResult> => {
+  const response = await api.post(`/crawler/run/${targetName}`)
+  return response.data
+}
+
+export const addCrawlTarget = async (target: CrawlTarget): Promise<void> => {
+  await api.post('/crawler/targets', target)
+}
+
+export const deleteCrawlTarget = async (targetName: string): Promise<void> => {
+  await api.delete(`/crawler/targets/${targetName}`)
+}
+
+export const startCrawler = async (): Promise<void> => {
+  await api.post('/crawler/start')
+}
+
+export const stopCrawler = async (): Promise<void> => {
+  await api.post('/crawler/stop')
 }
 
 // Rankings & Leaderboard APIs
