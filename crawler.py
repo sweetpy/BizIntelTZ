@@ -20,6 +20,7 @@ def crawl_site(start_url: str, db: Database, max_pages: int = 5) -> int:
     visited = set()
     queue = deque([start_url])
     added = 0
+    start_time = datetime.datetime.utcnow().isoformat()
 
     while queue and len(visited) < max_pages:
         url = queue.popleft()
@@ -58,6 +59,8 @@ def crawl_site(start_url: str, db: Database, max_pages: int = 5) -> int:
             if urlparse(next_url).netloc == urlparse(start_url).netloc and next_url not in visited:
                 queue.append(next_url)
 
+    end_time = datetime.datetime.utcnow().isoformat()
+    db.log_crawl(start_time, end_time, len(visited), added)
     return added
 
 

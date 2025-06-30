@@ -45,6 +45,9 @@ the helper script:
 python crawler.py https://example.com
 ```
 
+### Crawler Dashboard
+Monitor crawler progress and database growth at `/admin/crawler` once logged in.
+
 ## Running 24/7
 For production deployments, run Uvicorn without `--reload` and use a process
 manager such as `systemd`, `supervisor`, or `docker` to keep the server running

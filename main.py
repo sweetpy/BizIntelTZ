@@ -254,6 +254,11 @@ async def crawl(start_url: str = Form(...), pages: int = Form(5)):
     added = crawl_site(start_url, db, max_pages=pages)
     return {"status": "crawl_complete", "added": added}
 
+
+@app.get("/crawler/stats")
+async def crawler_stats():
+    return db.get_crawler_stats()
+
 @app.get("/export")
 async def export_data():
     csv_file = io.StringIO()

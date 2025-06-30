@@ -5,11 +5,12 @@ import {
   BusinessUpdate, 
   Review, 
   Claim, 
-  AnalyticsEvent, 
-  Lead, 
+  AnalyticsEvent,
+  Lead,
   SearchFilters,
   AnalyticsData,
   AdminStats,
+  CrawlerStats,
   BIVerificationResult,
   BIVerificationRequest,
   MarketMappingData,
@@ -220,6 +221,11 @@ export const getLeads = async (): Promise<Lead[]> => {
 // Admin
 export const getAdminStats = async (): Promise<AdminStats> => {
   const response = await api.get('/admin')
+  return response.data
+}
+
+export const getCrawlerStats = async (): Promise<CrawlerStats> => {
+  const response = await api.get('/crawler/stats')
   return response.data
 }
 

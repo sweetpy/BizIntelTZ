@@ -1,4 +1,5 @@
 import sqlite3
+import datetime
 from typing import Optional
 from contextlib import contextmanager
 
@@ -69,6 +70,15 @@ class Database:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     business_id TEXT,
                     filename TEXT
+                )"""
+            )
+            c.execute(
+                """CREATE TABLE IF NOT EXISTS crawler_runs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    start_time TEXT,
+                    end_time TEXT,
+                    pages_crawled INTEGER,
+                    businesses_added INTEGER
                 )"""
             )
             conn.commit()
@@ -147,3 +157,36 @@ class Database:
                 (biz_id, filename),
             )
             conn.commit()
+
+    def log_crawl(self, start_time: str, end_time: str, pages: int, businesses: int):
+        with self.connection() as conn:
+            conn.execute(
+                """INSERT INTO crawler_runs(start_time, end_time, pages_crawled, businesses_added)
+                VALUES (?, ?, ?, ?)""",
+                (start_time, end_time, pages, businesses),
+            )
+            conn.commit()
+
+    def get_crawler_stats(self):
+        with self.connection() as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT COUNT(*), COALESCE(SUM(pages_crawled),0), COALESCE(SUM(businesses_added),0), MAX(end_time), MIN(start_time) FROM crawler_runs"
+            )
+            total_runs, total_pages, total_businesses, last_run, first_run = c.fetchone()
+            avg_pages = total_pages / total_runs if total_runs else 0
+            avg_biz = total_businesses / total_runs if total_runs else 0
+            uptime_sec = 0
+            if first_run:
+                start = datetime.datetime.fromisoformat(first_run)
+                uptime_sec = (datetime.datetime.utcnow() - start).total_seconds()
+
+            return {
+                "total_runs": total_runs,
+                "total_pages": total_pages,
+                "total_businesses": total_businesses,
+                "last_run": last_run,
+                "avg_pages_per_run": avg_pages,
+                "avg_businesses_per_run": avg_biz,
+                "uptime_seconds": int(uptime_sec),
+            }

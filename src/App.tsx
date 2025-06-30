@@ -32,6 +32,7 @@ import SkillBuilding from './pages/SkillBuilding'
 import Rankings from './pages/Rankings'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
+import CrawlerDashboard from './pages/CrawlerDashboard'
 
 function App() {
   return (
@@ -113,6 +114,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ExternalIntegrations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/crawler"
+          element={
+            <ProtectedRoute>
+              <CrawlerDashboard />
             </ProtectedRoute>
           }
         />
