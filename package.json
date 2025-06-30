@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:backend": "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000 --reload",
-    "dev:full": "concurrently \"npm run dev:backend\" \"npm run dev\"",
+    "dev:backend": "echo 'Backend not available in WebContainer environment. Python pip and third-party packages are not supported.'",
+    "dev:full": "npm run dev",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "start": "npm run dev:full"
+    "start": "npm run dev"
   },
   "dependencies": {
     "react": "^18.2.0",
