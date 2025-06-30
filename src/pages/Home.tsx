@@ -1,43 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { 
-  Building2, 
-  Search, 
-  Plus, 
-  Shield,
-  Brain,
-  ChevronDown,
-  Database,
-  MessageSquare,
-  Zap,
-  ShoppingBag,
-  Globe,
-  Sparkles,
-  GraduationCap,
-  Trophy,
-  Crown,
-  TrendingUp, 
-  Users, 
-  Award, 
-  Star, 
-  Eye, 
-  ArrowRight, 
-  ArrowUp, 
-  ArrowDown, 
-  Minus, 
-  Target, 
-  ChevronRight,
-  Fire,
-  AlertTriangle,
-  Clock,
-  Share2,
-  Bell,
-  Sword,
-  Skull,
-  ThumbsUp,
-  Activity,
-  BarChart3
-} from 'lucide-react'
+import { Building2, Search, Plus, Shield, Brain, ChevronDown, Database, MessageSquare, Zap, ShoppingBag, Globe, Sparkles, GraduationCap, Trophy, Crown, TrendingUp, Users, Award, Star, Eye, ArrowRight, ArrowUp, ArrowDown, Minus, Target, ChevronRight, Siren as Fire, AlertTriangle, Clock, Share2, Bell, Sword, Skull, ThumbsUp, Activity, BarChart3 } from 'lucide-react'
 import { searchBusinesses, getAnalytics, getLeaderboardData } from '../utils/api'
 import { Business, AnalyticsData, LeaderboardData } from '../types'
 import BusinessCard from '../components/BusinessCard'
