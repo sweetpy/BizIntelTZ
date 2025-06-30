@@ -147,7 +147,7 @@ const Home: React.FC = () => {
     totalBusinesses: '250,000+',
     verifiedEntities: '180,000+',
     monthlyVerifications: '45,000+',
-    dataPoints: '50M+',
+    dataPoints: '2M+',
     regions: '31',
     sectors: '120+',
     lastUpdate: new Date().toLocaleTimeString(),
@@ -281,7 +281,7 @@ const Home: React.FC = () => {
               </p>
               
               {/* Stats grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg p-3 hover:bg-white/15 transition-colors">
                   <div className="text-xl font-bold text-white">{realTimeMetrics?.totalBusinesses || '250,000+'}</div>
                   <div className="text-xs text-slate-300">Verified Entities</div>
@@ -293,6 +293,10 @@ const Home: React.FC = () => {
                 <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg p-3 hover:bg-white/15 transition-colors">
                   <div className="text-xl font-bold text-white">{realTimeMetrics?.monthlyVerifications || '45,000+'}</div>
                   <div className="text-xs text-slate-300">Monthly Verifications</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg p-3 hover:bg-white/15 transition-colors">
+                  <div className="text-xl font-bold text-white">{realTimeMetrics?.dataPoints || '2M+'}</div>
+                  <div className="text-xs text-slate-300">Data Points</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg p-3 hover:bg-white/15 transition-colors">
                   <div className="text-xl font-bold text-white">{realTimeMetrics?.responseTime || '< 200ms'}</div>

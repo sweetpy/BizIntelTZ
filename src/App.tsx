@@ -31,6 +31,7 @@ import AIMarketingAssistant from './pages/AIMarketingAssistant'
 import SkillBuilding from './pages/SkillBuilding'
 import CrawlerManagement from './pages/CrawlerManagement'
 import Rankings from './pages/Rankings'
+import Features from './pages/Features'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -43,6 +44,7 @@ function App() {
         <Route path="/business/:id" element={<BusinessProfile />} />
         <Route path="/verify" element={<BIVerification />} />
         <Route path="/rankings" element={<Rankings />} />
+        <Route path="/features" element={<Features />} />
         <Route path="/login" element={<Login />} />
         <Route path="/create-business" element={<CreateBusiness />} />
         <Route
