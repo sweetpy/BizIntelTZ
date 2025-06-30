@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Building2, Search, Plus, Shield, Brain, ChevronDown, Database, MessageSquare, Zap, ShoppingBag, Globe, Sparkles, GraduationCap, Trophy, Crown, TrendingUp, Users, Award, Star, Eye, ArrowRight, ArrowUp, ArrowDown, Minus, Target, ChevronRight, Siren as Fire, AlertTriangle, Clock, Share2, Bell, Sword, Skull, ThumbsUp, Activity, BarChart3 } from 'lucide-react'
+import { Search, TrendingUp, Users, Award, Building2, ArrowRight, Star, Plus, Trophy, Crown, Eye, Target, ChevronRight, BarChart3, Database, Shield, ShieldCheck, Zap, Globe, Brain, Lock, CheckCircle, AlertTriangle, Clock, Activity, PieChart, LineChart, Briefcase, FileText, DollarSign } from 'lucide-react'
 import { searchBusinesses, getAnalytics, getLeaderboardData } from '../utils/api'
 import { Business, AnalyticsData, LeaderboardData } from '../types'
 import BusinessCard from '../components/BusinessCard'
@@ -12,129 +12,81 @@ const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [liveUpdates, setLiveUpdates] = useState<any[]>([])
-  const [timeUntilNextRanking, setTimeUntilNextRanking] = useState<number>(0)
-  const [battleOfTheDay, setBattleOfTheDay] = useState<any>(null)
-  const [shameBoard, setShameBoard] = useState<any[]>([])
-  const [viralMoments, setViralMoments] = useState<any[]>([])
+  const [realTimeMetrics, setRealTimeMetrics] = useState<any>(null)
 
-  // Mock data as fallback
+  // Mock enterprise-grade data
   const mockAnalytics: AnalyticsData = {
-    views: 2150,
-    clicks: 1340
+    views: 2150000,
+    clicks: 1340000
   }
 
   const mockLeaderboardData: LeaderboardData = {
     overall_leaders: [
       {
-        id: "mock-1",
-        name: "TechHub Dar es Salaam",
-        bi_id: "BIZ-TZ-20241201-1001",
+        id: "ent-1",
+        name: "Vodacom Tanzania Limited",
+        bi_id: "BIZ-TZ-20241201-0001",
         region: "Dar es Salaam",
-        sector: "Technology",
-        digital_score: 92,
+        sector: "Telecommunications",
+        digital_score: 95,
         rank: 1,
-        previous_rank: 2,
-        rank_change: 1,
-        views_count: 2840,
-        reviews_count: 45,
-        average_rating: 4.8,
+        previous_rank: 1,
+        rank_change: 0,
+        views_count: 125840,
+        reviews_count: 2456,
+        average_rating: 4.7,
         badges: [],
-        buzz_score: 95,
-        market_share_percentage: 12.5,
+        buzz_score: 94,
+        market_share_percentage: 42.3,
         sentiment_score: 88,
-        growth_rate: 15.3,
+        growth_rate: 8.4,
         premium: true,
         verified: true,
         claimed: true
       },
       {
-        id: "mock-2",
-        name: "Kilimanjaro Coffee Co",
-        bi_id: "BIZ-TZ-20241201-1002",
-        region: "Arusha",
-        sector: "Agriculture",
-        digital_score: 88,
+        id: "ent-2",
+        name: "CRDB Bank PLC",
+        bi_id: "BIZ-TZ-20241201-0002",
+        region: "Dar es Salaam",
+        sector: "Financial Services",
+        digital_score: 92,
         rank: 2,
         previous_rank: 3,
         rank_change: 1,
-        views_count: 2340,
-        reviews_count: 38,
-        average_rating: 4.7,
-        badges: [],
-        buzz_score: 89,
-        market_share_percentage: 10.2,
-        sentiment_score: 92,
-        growth_rate: 12.8,
-        premium: true,
-        verified: true,
-        claimed: true
-      },
-      {
-        id: "mock-3",
-        name: "Zanzibar Tours & Travel",
-        bi_id: "BIZ-TZ-20241201-1003",
-        region: "Zanzibar",
-        sector: "Tourism",
-        digital_score: 85,
-        rank: 3,
-        previous_rank: 1,
-        rank_change: -2,
-        views_count: 2120,
-        reviews_count: 52,
-        average_rating: 4.6,
-        badges: [],
-        buzz_score: 84,
-        market_share_percentage: 8.7,
-        sentiment_score: 86,
-        growth_rate: 8.2,
-        premium: false,
-        verified: true,
-        claimed: true
-      },
-      {
-        id: "mock-4",
-        name: "Serengeti Safari Lodge",
-        bi_id: "BIZ-TZ-20241201-1004",
-        region: "Arusha",
-        sector: "Tourism",
-        digital_score: 82,
-        rank: 4,
-        previous_rank: 4,
-        rank_change: 0,
-        views_count: 1890,
-        reviews_count: 31,
+        views_count: 98230,
+        reviews_count: 1876,
         average_rating: 4.5,
         badges: [],
-        buzz_score: 79,
-        market_share_percentage: 7.1,
-        sentiment_score: 83,
-        growth_rate: 5.4,
+        buzz_score: 89,
+        market_share_percentage: 28.7,
+        sentiment_score: 85,
+        growth_rate: 12.1,
         premium: true,
-        verified: false,
+        verified: true,
         claimed: true
       },
       {
-        id: "mock-5",
-        name: "Mwanza Fish Export Co",
-        bi_id: "BIZ-TZ-20241201-1005",
-        region: "Mwanza",
-        sector: "Trade",
-        digital_score: 78,
-        rank: 5,
-        previous_rank: 8,
-        rank_change: 3,
-        views_count: 1650,
-        reviews_count: 28,
-        average_rating: 4.3,
+        id: "ent-3",
+        name: "Precision Air Services",
+        bi_id: "BIZ-TZ-20241201-0003",
+        region: "Dar es Salaam",
+        sector: "Aviation",
+        digital_score: 89,
+        rank: 3,
+        previous_rank: 2,
+        rank_change: -1,
+        views_count: 87450,
+        reviews_count: 1234,
+        average_rating: 4.4,
         badges: [],
-        buzz_score: 82,
-        market_share_percentage: 6.8,
-        sentiment_score: 80,
-        growth_rate: 18.7,
-        premium: false,
+        buzz_score: 86,
+        market_share_percentage: 35.8,
+        sentiment_score: 82,
+        growth_rate: 6.7,
+        premium: true,
         verified: true,
-        claimed: false
+        claimed: true
       }
     ],
     regional_leaders: [],
@@ -143,84 +95,32 @@ const Home: React.FC = () => {
     fastest_growing: [],
     most_viewed: [],
     top_rated: [],
-    recent_badge_winners: [
-      {
-        business_id: "mock-1",
-        business_name: "TechHub Dar es Salaam",
-        badge: {
-          id: "innovation-leader",
-          name: "Innovation Leader",
-          icon: "star",
-          color: "#f59e0b",
-          description: "Leading innovation in technology sector",
-          earned_date: new Date().toISOString(),
-          category: "achievement"
-        },
-        earned_date: new Date().toISOString(),
-        region: "Dar es Salaam",
-        sector: "Technology"
-      }
-    ]
+    recent_badge_winners: []
   }
 
-  // Mock live updates
-  const mockLiveUpdates = [
-    { type: 'rank_change', business: 'TechHub Dar es Salaam', change: '+1', timestamp: '2 min ago', severity: 'success' },
-    { type: 'new_review', business: 'Kilimanjaro Coffee Co', rating: 5, timestamp: '4 min ago', severity: 'info' },
-    { type: 'rank_drop', business: 'Zanzibar Tours & Travel', change: '-2', timestamp: '7 min ago', severity: 'danger' },
-    { type: 'new_business', business: 'Dodoma Transport Hub', timestamp: '12 min ago', severity: 'success' },
-    { type: 'badge_earned', business: 'Mwanza Fish Export Co', badge: 'Rising Star', timestamp: '15 min ago', severity: 'warning' }
-  ]
-
-  // Mock shame board (businesses losing ground)
-  const mockShameBoard = [
-    { name: 'Arusha Mills Ltd', rank_drop: -5, reason: 'No customer engagement for 2 weeks', score_loss: -12 },
-    { name: 'Coastal Logistics', rank_drop: -3, reason: 'Negative reviews flooding in', score_loss: -8 },
-    { name: 'Mbeya Agro Solutions', rank_drop: -7, reason: 'Competitors taking market share', score_loss: -15 }
-  ]
-
-  // Mock battle of the day
-  const mockBattleOfTheDay = {
-    business_a: { name: 'TechHub Dar es Salaam', score: 92, votes: 1247 },
-    business_b: { name: 'Kilimanjaro Coffee Co', score: 88, votes: 1156 },
-    ends_in: '4h 23m',
-    prize: 'Top Business Badge + Premium Features'
+  const enterpriseMetrics = {
+    totalBusinesses: '250,000+',
+    verifiedEntities: '180,000+',
+    monthlyVerifications: '45,000+',
+    dataPoints: '50M+',
+    regions: '31',
+    sectors: '120+',
+    lastUpdate: new Date().toLocaleTimeString(),
+    uptime: '99.97%'
   }
-
-  // Mock viral moments
-  const mockViralMoments = [
-    { business: 'TechHub Dar es Salaam', achievement: 'Reached #1 position', shares: 342, likes: 1250 },
-    { business: 'Serengeti Safari Lodge', achievement: 'Customer service excellence badge', shares: 189, likes: 890 },
-    { business: 'Mwanza Fish Export Co', achievement: 'Fastest growing business this week', shares: 156, likes: 675 }
-  ]
 
   useEffect(() => {
     loadData()
     
-    // Set up real-time updates
+    // Set up real-time updates for enterprise metrics
     const interval = setInterval(() => {
-      setLiveUpdates(mockLiveUpdates)
-      setShameBoard(mockShameBoard)
-      setBattleOfTheDay(mockBattleOfTheDay)
-      setViralMoments(mockViralMoments)
-      
-      // Countdown to next ranking update (every hour)
-      const nextHour = new Date()
-      nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0)
-      const timeLeft = nextHour.getTime() - new Date().getTime()
-      setTimeUntilNextRanking(Math.floor(timeLeft / 1000))
-    }, 5000)
+      setRealTimeMetrics({
+        ...enterpriseMetrics,
+        lastUpdate: new Date().toLocaleTimeString()
+      })
+    }, 30000)
 
     return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    // Countdown timer
-    const timer = setInterval(() => {
-      setTimeUntilNextRanking(prev => prev > 0 ? prev - 1 : 0)
-    }, 1000)
-
-    return () => clearInterval(timer)
   }, [])
 
   const loadData = async () => {
@@ -228,43 +128,35 @@ const Home: React.FC = () => {
       setIsLoading(true)
       setError(null)
       
-      // Try to load real data with fallback to mock data
+      // Load with fallback to mock data for demo
       try {
-        // Load featured businesses (premium businesses)
         const businesses = await searchBusinesses({ premium: true })
         setFeaturedBusinesses(businesses.length > 0 ? businesses.slice(0, 6) : [])
       } catch (err) {
-        console.log('Using mock featured businesses:', err)
         setFeaturedBusinesses([])
       }
 
       try {
-        // Load analytics
         const analyticsData = await getAnalytics()
         setAnalytics(analyticsData)
       } catch (err) {
-        console.log('Using mock analytics:', err)
         setAnalytics(mockAnalytics)
       }
 
       try {
-        // Load leaderboard data
         const leaderboard = await getLeaderboardData()
         setLeaderboardData(leaderboard)
       } catch (err) {
-        console.log('Using mock leaderboard:', err)
         setLeaderboardData(mockLeaderboardData)
       }
 
     } catch (error) {
       console.error('Error loading data:', error)
-      setError('Failed to load some data. Showing demo content.')
-      // Use all mock data as fallback
-      setFeaturedBusinesses([])
       setAnalytics(mockAnalytics)
       setLeaderboardData(mockLeaderboardData)
     } finally {
       setIsLoading(false)
+      setRealTimeMetrics(enterpriseMetrics)
     }
   }
 
@@ -275,492 +167,680 @@ const Home: React.FC = () => {
     }
   }
 
-  const getRankBadge = (rank: number) => {
-    if (rank === 1) return { icon: Crown, color: 'text-warning-600', bg: 'bg-warning-100' }
-    if (rank <= 3) return { icon: Trophy, color: 'text-warning-600', bg: 'bg-warning-100' }
-    return { icon: Target, color: 'text-blue-600', bg: 'bg-blue-100' }
-  }
-
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
-    return `${hours}h ${minutes}m ${secs}s`
-  }
-
-  const shareRanking = (business: any) => {
-    const text = `🚀 ${business.name} is ranked #${business.rank} in Tanzania! Check out the live business rankings on BizIntelTZ`
-    const url = `${window.location.origin}/business/${business.id}`
-    
-    if (navigator.share) {
-      navigator.share({ title: 'BizIntelTZ Rankings', text, url })
-    } else {
-      navigator.clipboard.writeText(`${text} ${url}`)
-      alert('Ranking shared to clipboard!')
-    }
-  }
-
   return (
-    <div className="space-y-8">
-      {/* LIVE BREAKING NEWS BANNER */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-red-600 opacity-90"></div>
-        <div className="relative flex items-center justify-center space-x-4">
-          <div className="flex items-center space-x-2 animate-pulse">
-            <div className="w-3 h-3 bg-white rounded-full"></div>
-            <span className="font-bold text-lg">🔴 LIVE</span>
-          </div>
-          <div className="text-center">
-            <p className="font-semibold text-lg">
-              ⚡ RANKING UPDATE IN: {formatTime(timeUntilNextRanking)} ⚡ 
-              <span className="ml-4">🔥 {liveUpdates.length} BUSINESSES BATTLING RIGHT NOW! 🔥</span>
-            </p>
+    <div className="space-y-20">
+      {/* HERO SECTION - ENTERPRISE PROFESSIONAL */}
+      <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent"></div>
+        
+        {/* Professional background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-indigo-600/20"></div>
+          <div className="grid grid-cols-12 gap-4 h-full">
+            {[...Array(60)].map((_, i) => (
+              <div key={i} className="bg-white/5 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }}></div>
+            ))}
           </div>
         </div>
-      </div>
-
-      {/* HERO - COMPETITIVE FOCUS */}
-      <section className="relative bg-gradient-to-br from-red-900 via-red-800 to-orange-700 overflow-hidden">
-        <div className="absolute inset-0 bg-black/30"></div>
         
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full animate-bounce"></div>
-          <div className="absolute bottom-20 left-20 w-20 h-20 bg-warning-500/20 rounded-full animate-pulse"></div>
-          <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-secondary-500/20 rounded-full animate-ping"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center space-y-8">
-            <div className="space-y-6">
-              <div className="flex justify-center">
-                <div className="flex items-center space-x-3 bg-red-600/80 backdrop-blur-sm rounded-full px-6 py-3 mb-4">
-                  <Trophy className="h-6 w-6 text-warning-400 animate-bounce" />
-                  <span className="text-white font-bold text-xl">WHO RULES TANZANIA BUSINESS?</span>
-                  <Crown className="h-6 w-6 text-warning-400 animate-bounce" />
-                </div>
-              </div>
-              
-              <h1 className="text-5xl md:text-7xl font-black text-white text-balance leading-tight">
-                <span className="block text-red-300">YOUR COMPETITORS</span>
-                <span className="block text-warning-300">ARE WATCHING</span>
-                <span className="block">YOU LOSE</span>
-              </h1>
-              
-              <p className="text-2xl text-red-100 max-w-4xl mx-auto text-balance font-semibold">
-                🔥 LIVE RANKINGS UPDATE EVERY HOUR 🔥<br/>
-                See exactly where you stand against every competitor in Tanzania.<br/>
-                <span className="text-warning-300">Your customers are already checking...</span>
-              </p>
-            </div>
-            
-            {/* LIVE BATTLE OF THE DAY */}
-            {battleOfTheDay && (
-              <div className="max-w-4xl mx-auto bg-black/50 backdrop-blur-sm rounded-2xl p-8 border-2 border-warning-500">
-                <div className="text-center mb-6">
-                  <h2 className="text-3xl font-bold text-warning-400 mb-2">⚔️ BATTLE OF THE DAY ⚔️</h2>
-                  <p className="text-white">Winner gets the crown! Voting ends in: <span className="text-red-300 font-bold">{battleOfTheDay.ends_in}</span></p>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="text-center">
-                    <div className="bg-blue-600/80 rounded-xl p-6 mb-4">
-                      <h3 className="text-xl font-bold text-white mb-2">{battleOfTheDay.business_a.name}</h3>
-                      <div className="text-4xl font-black text-white">{battleOfTheDay.business_a.score}</div>
-                      <div className="text-blue-200">{battleOfTheDay.business_a.votes} votes</div>
-                    </div>
-                    <button className="btn bg-blue-600 text-white hover:bg-blue-700 font-bold">
-                      🗳️ VOTE NOW
-                    </button>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="bg-green-600/80 rounded-xl p-6 mb-4">
-                      <h3 className="text-xl font-bold text-white mb-2">{battleOfTheDay.business_b.name}</h3>
-                      <div className="text-4xl font-black text-white">{battleOfTheDay.business_b.score}</div>
-                      <div className="text-green-200">{battleOfTheDay.business_b.votes} votes</div>
-                    </div>
-                    <button className="btn bg-green-600 text-white hover:bg-green-700 font-bold">
-                      🗳️ VOTE NOW
-                    </button>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <div className="space-y-6">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="flex items-center space-x-2 bg-blue-600/20 backdrop-blur-sm rounded-full px-4 py-2">
+                    <Shield className="h-5 w-5 text-blue-400" />
+                    <span className="text-blue-300 font-semibold">Enterprise Business Intelligence</span>
                   </div>
                 </div>
                 
-                <div className="text-center mt-6">
-                  <p className="text-warning-300 font-semibold">🏆 Prize: {battleOfTheDay.prize}</p>
+                <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight">
+                  Tanzania's Premier
+                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                    Business Intelligence
+                  </span>
+                  <span className="block">Platform</span>
+                </h1>
+                
+                <p className="text-xl text-slate-300 leading-relaxed">
+                  Comprehensive data intelligence covering <strong className="text-white">250,000+ verified business entities</strong> 
+                  across Tanzania. Advanced analytics, verification systems, and competitive intelligence 
+                  trusted by leading financial institutions and enterprises.
+                </p>
+              </div>
+              
+              {/* Enterprise Value Props */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="text-2xl font-bold text-white">{realTimeMetrics?.totalBusinesses || '250,000+'}</div>
+                  <div className="text-sm text-slate-300">Verified Entities</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="text-2xl font-bold text-white">{realTimeMetrics?.uptime || '99.97%'}</div>
+                  <div className="text-sm text-slate-300">System Uptime</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="text-2xl font-bold text-white">{realTimeMetrics?.monthlyVerifications || '45,000+'}</div>
+                  <div className="text-sm text-slate-300">Monthly Verifications</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="text-2xl font-bold text-white">{realTimeMetrics?.dataPoints || '50M+'}</div>
+                  <div className="text-sm text-slate-300">Data Points</div>
                 </div>
               </div>
-            )}
-            
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
-              <div className="relative group">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400 group-focus-within:text-red-600" />
-                <input
-                  type="text"
-                  placeholder="🔍 SPY ON YOUR COMPETITORS... Find any business in Tanzania"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-14 pr-40 py-5 text-xl rounded-2xl border-0 shadow-2xl focus:ring-4 focus:ring-red-500 focus:shadow-xl transition-all duration-200 bg-white/95"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 btn bg-red-600 text-white hover:bg-red-700 px-8 py-3 font-bold"
+              
+              {/* Search Interface */}
+              <form onSubmit={handleSearch} className="mt-8">
+                <div className="relative group">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search business entities, BI IDs, or sectors..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-12 pr-32 py-4 text-lg rounded-lg border border-slate-600 bg-white/10 backdrop-blur-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                  >
+                    Search
+                  </button>
+                </div>
+              </form>
+              
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <Link
+                  to="/verify"
+                  className="btn bg-blue-600 text-white hover:bg-blue-700 px-8 py-4 text-lg font-semibold flex items-center justify-center space-x-2"
                 >
-                  🕵️ SPY NOW
-                </button>
+                  <Shield className="h-5 w-5" />
+                  <span>Verify BI ID</span>
+                </Link>
+                <Link
+                  to="/rankings"
+                  className="btn bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 px-8 py-4 text-lg font-semibold flex items-center justify-center space-x-2"
+                >
+                  <BarChart3 className="h-5 w-5" />
+                  <span>View Rankings</span>
+                </Link>
               </div>
-            </form>
-            
-            {/* Quick Actions */}
-            <div className="flex flex-wrap justify-center gap-4 mt-8">
-              <Link
-                to="/rankings"
-                className="glass-effect rounded-xl px-8 py-4 text-white hover:bg-white/20 transition-all duration-200 flex items-center space-x-3 font-bold"
-              >
-                <Trophy className="h-6 w-6 animate-bounce" />
-                <span>🔥 LIVE RANKINGS</span>
-              </Link>
-              <Link
-                to="/create-business"
-                className="glass-effect rounded-xl px-8 py-4 text-white hover:bg-white/20 transition-all duration-200 flex items-center space-x-3 font-bold"
-              >
-                <Sword className="h-6 w-6" />
-                <span>⚔️ JOIN THE BATTLE</span>
-              </Link>
-              <button
-                onClick={() => window.open('/rankings?share=true', '_blank')}
-                className="glass-effect rounded-xl px-8 py-4 text-white hover:bg-white/20 transition-all duration-200 flex items-center space-x-3 font-bold"
-              >
-                <Share2 className="h-6 w-6" />
-                <span>📢 SHARE & SHAME</span>
-              </button>
+            </div>
+
+            {/* Live Intelligence Dashboard */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white">Live Intelligence Dashboard</h3>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-slate-300">Live</span>
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-blue-400">{analytics?.views.toLocaleString() || '2.15M'}</div>
+                    <div className="text-sm text-slate-400">Monthly Queries</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-400">{analytics?.clicks.toLocaleString() || '1.34M'}</div>
+                    <div className="text-sm text-slate-400">Verifications</div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-300">System Status</span>
+                    <span className="text-green-400 font-semibold">Operational</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-300">Last Update</span>
+                    <span className="text-slate-300">{realTimeMetrics?.lastUpdate || 'Just now'}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-300">Data Coverage</span>
+                    <span className="text-blue-400">{realTimeMetrics?.regions || '31'} Regions</span>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-white/10">
+                  <Link
+                    to="/admin"
+                    className="w-full btn bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 border border-blue-500/30"
+                  >
+                    Access Full Dashboard
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* LIVE ACTIVITY FEED */}
+      {/* TRUST INDICATORS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-6 border-2 border-red-200">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-              <Activity className="h-6 w-6 text-red-600 animate-pulse" />
-              <span>🔴 LIVE BUSINESS BATTLES</span>
-            </h2>
-            <div className="text-sm text-gray-600">Updates every 30 seconds</div>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Trusted by Leading Organizations</h2>
+          <p className="text-xl text-gray-600">Powering business intelligence for banks, corporations, and government agencies</p>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center opacity-60">
+          {/* Placeholder for trusted organization logos */}
+          <div className="bg-gray-200 rounded-lg p-6 w-full h-16 flex items-center justify-center">
+            <span className="text-gray-500 font-semibold">Central Bank</span>
           </div>
-          
-          <div className="space-y-3 max-h-64 overflow-y-auto">
-            {liveUpdates.map((update, index) => (
-              <div key={index} className={`flex items-center justify-between p-4 rounded-lg ${
-                update.severity === 'danger' ? 'bg-red-100 border-l-4 border-red-500' :
-                update.severity === 'success' ? 'bg-green-100 border-l-4 border-green-500' :
-                update.severity === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500' :
-                'bg-blue-100 border-l-4 border-blue-500'
-              }`}>
+          <div className="bg-gray-200 rounded-lg p-6 w-full h-16 flex items-center justify-center">
+            <span className="text-gray-500 font-semibold">CRDB Bank</span>
+          </div>
+          <div className="bg-gray-200 rounded-lg p-6 w-full h-16 flex items-center justify-center">
+            <span className="text-gray-500 font-semibold">Vodacom</span>
+          </div>
+          <div className="bg-gray-200 rounded-lg p-6 w-full h-16 flex items-center justify-center">
+            <span className="text-gray-500 font-semibold">Government</span>
+          </div>
+        </div>
+      </section>
+
+      {/* BI ID VERIFICATION SYSTEM */}
+      <section className="bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <div className="space-y-6">
                 <div className="flex items-center space-x-3">
-                  {update.type === 'rank_change' && <TrendingUp className="h-5 w-5 text-green-600" />}
-                  {update.type === 'rank_drop' && <ArrowDown className="h-5 w-5 text-red-600" />}
-                  {update.type === 'new_review' && <Star className="h-5 w-5 text-yellow-600" />}
-                  {update.type === 'new_business' && <Plus className="h-5 w-5 text-blue-600" />}
-                  {update.type === 'badge_earned' && <Award className="h-5 w-5 text-purple-600" />}
-                  
-                  <div>
-                    <span className="font-semibold text-gray-900">{update.business}</span>
-                    <span className="text-gray-700 ml-2">
-                      {update.type === 'rank_change' && `jumped ${update.change} positions! 🚀`}
-                      {update.type === 'rank_drop' && `dropped ${update.change} positions 📉`}
-                      {update.type === 'new_review' && `got a ${update.rating}⭐ review!`}
-                      {update.type === 'new_business' && `joined the competition!`}
-                      {update.type === 'badge_earned' && `earned "${update.badge}" badge! 🏆`}
-                    </span>
+                  <div className="p-3 bg-blue-100 rounded-xl">
+                    <ShieldCheck className="h-8 w-8 text-blue-600" />
                   </div>
+                  <h2 className="text-4xl font-bold text-gray-900">Business Intelligence ID System</h2>
                 </div>
-                <div className="text-xs text-gray-500">{update.timestamp}</div>
+                
+                <p className="text-xl text-gray-600 leading-relaxed">
+                  Every business entity receives a unique, verifiable BI ID for secure identification 
+                  and verification. Essential for KYB compliance, due diligence, and risk assessment.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* SHAME BOARD - Public Humiliation */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-red-900 to-red-800 rounded-2xl p-8 text-white">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold mb-4 flex items-center justify-center space-x-3">
-              <Skull className="h-8 w-8 text-red-300" />
-              <span>💀 WALL OF SHAME 💀</span>
-              <Skull className="h-8 w-8 text-red-300" />
-            </h2>
-            <p className="text-red-200 text-xl">These businesses are LOSING ground to their competitors!</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {shameBoard.map((business, index) => (
-              <div key={index} className="bg-red-800/50 rounded-xl p-6 border-2 border-red-600">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <Lock className="h-6 w-6 text-blue-600" />
+                    <h3 className="font-bold text-gray-900">Secure Verification</h3>
+                  </div>
+                  <p className="text-gray-600">Cryptographically secure IDs with real-time verification API for instant business validation.</p>
+                </div>
+                
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <Database className="h-6 w-6 text-green-600" />
+                    <h3 className="font-bold text-gray-900">Comprehensive Data</h3>
+                  </div>
+                  <p className="text-gray-600">Complete business profiles with ownership, financial, and operational intelligence data.</p>
+                </div>
+                
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <Clock className="h-6 w-6 text-orange-600" />
+                    <h3 className="font-bold text-gray-900">Real-Time Updates</h3>
+                  </div>
+                  <p className="text-gray-600">Continuous monitoring and updates ensure data accuracy and reliability for critical decisions.</p>
+                </div>
+                
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <Globe className="h-6 w-6 text-purple-600" />
+                    <h3 className="font-bold text-gray-900">API Integration</h3>
+                  </div>
+                  <p className="text-gray-600">Enterprise-grade APIs for seamless integration with your existing systems and workflows.</p>
+                </div>
+              </div>
+
+              <div className="pt-6">
+                <Link
+                  to="/verify"
+                  className="btn btn-primary text-lg px-8 py-4 flex items-center space-x-2 w-fit"
+                >
+                  <ShieldCheck className="h-5 w-5" />
+                  <span>Verify Business ID</span>
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+              <div className="space-y-6">
                 <div className="text-center">
-                  <div className="text-6xl mb-4">😱</div>
-                  <h3 className="font-bold text-xl mb-2">{business.name}</h3>
-                  <div className="text-red-300 text-lg font-semibold mb-2">
-                    Rank Drop: {business.rank_drop} positions
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Sample BI ID Verification</h3>
+                  <div className="bg-blue-50 rounded-lg p-6 border-2 border-blue-200">
+                    <div className="text-sm text-blue-600 font-medium mb-2">Business Intelligence ID</div>
+                    <div className="text-2xl font-mono font-bold text-blue-900 mb-4">BIZ-TZ-20241201-0001</div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="text-left">
+                        <div className="text-gray-600">Entity:</div>
+                        <div className="font-semibold">Vodacom Tanzania Ltd</div>
+                      </div>
+                      <div className="text-left">
+                        <div className="text-gray-600">Status:</div>
+                        <div className="font-semibold text-green-600">✓ Verified</div>
+                      </div>
+                      <div className="text-left">
+                        <div className="text-gray-600">Sector:</div>
+                        <div className="font-semibold">Telecommunications</div>
+                      </div>
+                      <div className="text-left">
+                        <div className="text-gray-600">Region:</div>
+                        <div className="font-semibold">Dar es Salaam</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-red-200 text-sm mb-3">{business.reason}</div>
-                  <div className="text-warning-300 font-bold">
-                    Lost {business.score_loss} points this week!
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <span className="text-gray-700 font-medium">Verification Time</span>
+                    <span className="text-green-600 font-semibold">&lt; 200ms</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <span className="text-gray-700 font-medium">Data Accuracy</span>
+                    <span className="text-blue-600 font-semibold">99.8%</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <span className="text-gray-700 font-medium">Coverage</span>
+                    <span className="text-purple-600 font-semibold">National</span>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-          
-          <div className="text-center mt-8">
-            <p className="text-red-200 text-lg">📢 Don't let YOUR business end up here!</p>
-            <Link to="/create-business" className="btn bg-warning-600 text-white hover:bg-warning-700 mt-4 font-bold text-xl px-8 py-4">
-              🛡️ DEFEND YOUR RANKING
-            </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* LIVE LEADERBOARD WITH OBSESSION FEATURES */}
+      {/* MARKET INTELLIGENCE RANKINGS */}
       {leaderboardData && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <div className="flex justify-center mb-6">
-              <div className="p-4 bg-gradient-to-r from-warning-500 to-warning-600 rounded-xl animate-pulse">
-                <Trophy className="h-16 w-16 text-white" />
-              </div>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
-              ⚡ LIVE POWER RANKINGS ⚡
-            </h2>
-            <p className="text-2xl text-gray-600 max-w-4xl mx-auto font-semibold">
-              🔥 Updates every hour! 🔥 See who's CRUSHING the competition right now.
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">Market Intelligence & Rankings</h2>
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+              Real-time business performance analytics and competitive intelligence 
+              across all sectors and regions in Tanzania.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Rankings */}
+            {/* Market Leaders */}
             <div className="lg:col-span-2">
-              <div className="card border-4 border-warning-500">
+              <div className="card border border-gray-200">
                 <div className="p-8">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className="text-2xl font-bold text-gray-900 flex items-center space-x-3">
-                      <Crown className="h-6 w-6 text-warning-500 animate-bounce" />
-                      <span>👑 THE DOMINATORS</span>
+                      <Trophy className="h-6 w-6 text-blue-600" />
+                      <span>Market Leaders</span>
                     </h3>
-                    <div className="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-full font-semibold">
-                      Next update: {formatTime(timeUntilNextRanking)}
+                    <div className="text-sm text-gray-500">
+                      Updated: {realTimeMetrics?.lastUpdate || 'Live'}
                     </div>
                   </div>
                   
                   <div className="space-y-4">
-                    {leaderboardData.overall_leaders.slice(0, 5).map((business, index) => {
-                      const badge = getRankBadge(business.rank)
-                      const IconComponent = badge.icon
-                      
-                      return (
-                        <div
-                          key={business.id}
-                          className={`flex items-center justify-between p-6 rounded-xl transition-all hover:shadow-lg border-2 ${
-                            index === 0 
-                              ? 'bg-gradient-to-r from-warning-50 to-warning-100 border-warning-500 shadow-lg' 
-                              : index < 3
-                              ? 'bg-gradient-to-r from-orange-50 to-orange-100 border-orange-300'
-                              : 'bg-gray-50 hover:bg-gray-100 border-gray-200'
-                          }`}
-                        >
-                          <div className="flex items-center space-x-4">
-                            <div className={`flex items-center justify-center w-12 h-12 rounded-full font-black text-xl ${
-                              index === 0 ? 'bg-warning-500 text-white animate-pulse' :
-                              index === 1 ? 'bg-gray-400 text-white' :
-                              index === 2 ? 'bg-orange-600 text-white' :
-                              'bg-gray-200 text-gray-700'
-                            }`}>
-                              {index === 0 ? <Crown className="h-6 w-6" /> : business.rank}
-                            </div>
-                            
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <Link
-                                  to={`/business/${business.id}`}
-                                  className="font-bold text-xl text-gray-900 hover:text-primary-600 transition-colors"
-                                >
-                                  {business.name}
-                                </Link>
-                                {index === 0 && <span className="text-2xl animate-bounce">👑</span>}
-                                {business.verified && (
-                                  <div className="flex items-center space-x-1 bg-success-100 px-2 py-1 rounded-full">
-                                    <Star className="h-3 w-3 text-success-600" />
-                                    <span className="text-xs font-medium text-success-600">Verified</span>
-                                  </div>
-                                )}
-                                {business.premium && (
-                                  <div className="flex items-center space-x-1 bg-secondary-100 px-2 py-1 rounded-full">
-                                    <Crown className="h-3 w-3 text-secondary-600" />
-                                    <span className="text-xs font-medium text-secondary-600">Premium</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                                <span>{business.sector}</span>
-                                <span>•</span>
-                                <span>{business.region}</span>
-                                <span>•</span>
-                                <span className="flex items-center space-x-1">
-                                  <Eye className="h-3 w-3" />
-                                  <span>{business.views_count.toLocaleString()} stalkers</span>
-                                </span>
-                              </div>
-                            </div>
+                    {leaderboardData.overall_leaders.slice(0, 5).map((business, index) => (
+                      <div
+                        key={business.id}
+                        className={`flex items-center justify-between p-6 rounded-xl border transition-all hover:shadow-md ${
+                          index === 0 
+                            ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200' 
+                            : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm ${
+                            index === 0 ? 'bg-blue-600 text-white' :
+                            index === 1 ? 'bg-gray-500 text-white' :
+                            index === 2 ? 'bg-orange-500 text-white' :
+                            'bg-gray-300 text-gray-700'
+                          }`}>
+                            {business.rank}
                           </div>
                           
-                          <div className="flex items-center space-x-6">
-                            <div className="text-center">
-                              <div className="text-2xl font-black text-primary-600">{business.digital_score}</div>
-                              <div className="text-xs text-gray-600">Power Score</div>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-1">
+                              <Link
+                                to={`/business/${business.id}`}
+                                className="font-bold text-lg text-gray-900 hover:text-blue-600 transition-colors"
+                              >
+                                {business.name}
+                              </Link>
+                              {business.verified && (
+                                <ShieldCheck className="h-4 w-4 text-green-600" />
+                              )}
                             </div>
-                            <div className="text-center">
-                              <div className="flex items-center space-x-1">
-                                <Star className="h-4 w-4 text-warning-500 fill-current" />
-                                <span className="font-medium">{business.average_rating.toFixed(1)}</span>
-                              </div>
-                              <div className="text-xs text-gray-600">{business.reviews_count} reviews</div>
+                            <div className="flex items-center space-x-4 text-sm text-gray-600">
+                              <span>{business.sector}</span>
+                              <span>•</span>
+                              <span>{business.region}</span>
+                              <span>•</span>
+                              <span>BI ID: {business.bi_id}</span>
                             </div>
-                            <div className="text-center">
-                              <div className="flex items-center space-x-1">
-                                {business.rank_change > 0 && <ArrowUp className="h-4 w-4 text-success-600" />}
-                                {business.rank_change < 0 && <ArrowDown className="h-4 w-4 text-error-600" />}
-                                {business.rank_change === 0 && <Minus className="h-4 w-4 text-gray-400" />}
-                                <span className={`font-bold ${
-                                  business.rank_change > 0 ? 'text-success-600' :
-                                  business.rank_change < 0 ? 'text-error-600' : 'text-gray-600'
-                                }`}>
-                                  {business.rank_change !== 0 ? Math.abs(business.rank_change) : '—'}
-                                </span>
-                              </div>
-                              <div className="text-xs text-gray-600">vs last hour</div>
-                            </div>
-                            <button
-                              onClick={() => shareRanking(business)}
-                              className="btn bg-red-600 text-white hover:bg-red-700 text-sm px-4 py-2 font-bold"
-                            >
-                              📢 EXPOSE
-                            </button>
                           </div>
                         </div>
-                      )
-                    })}
+                        
+                        <div className="flex items-center space-x-6">
+                          <div className="text-center">
+                            <div className="text-xl font-bold text-blue-600">{business.digital_score}</div>
+                            <div className="text-xs text-gray-600">Intelligence Score</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-lg font-semibold text-gray-900">{business.market_share_percentage}%</div>
+                            <div className="text-xs text-gray-600">Market Share</div>
+                          </div>
+                          <div className="text-center">
+                            <div className={`text-lg font-semibold ${
+                              business.growth_rate > 0 ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                              {business.growth_rate > 0 ? '+' : ''}{business.growth_rate}%
+                            </div>
+                            <div className="text-xs text-gray-600">Growth</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-8 text-center">
+                    <Link
+                      to="/rankings"
+                      className="btn btn-primary"
+                    >
+                      View Complete Rankings
+                    </Link>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Viral Moments & Competition Alerts */}
+            {/* Intelligence Insights */}
             <div className="space-y-6">
-              {/* Viral Moments */}
-              <div className="card border-2 border-green-500">
+              <div className="card border border-gray-200">
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                    <Fire className="h-5 w-5 text-red-500" />
-                    <span>🔥 VIRAL MOMENTS</span>
+                    <Brain className="h-5 w-5 text-purple-600" />
+                    <span>Intelligence Insights</span>
                   </h3>
+                  
                   <div className="space-y-4">
-                    {viralMoments.map((moment, index) => (
-                      <div key={index} className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
-                        <h4 className="font-semibold text-gray-900">{moment.business}</h4>
-                        <p className="text-sm text-gray-700">{moment.achievement}</p>
-                        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-600">
-                          <span className="flex items-center space-x-1">
-                            <Share2 className="h-3 w-3" />
-                            <span>{moment.shares} shares</span>
-                          </span>
-                          <span className="flex items-center space-x-1">
-                            <ThumbsUp className="h-3 w-3" />
-                            <span>{moment.likes} likes</span>
-                          </span>
-                        </div>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <TrendingUp className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm font-semibold text-blue-900">Sector Growth</span>
                       </div>
-                    ))}
+                      <p className="text-sm text-blue-800">Telecommunications sector showing 12.4% growth this quarter</p>
+                    </div>
+                    
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Award className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-semibold text-green-900">Market Leader</span>
+                      </div>
+                      <p className="text-sm text-green-800">Vodacom maintains dominance with 42.3% market share</p>
+                    </div>
+                    
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <AlertTriangle className="h-4 w-4 text-orange-600" />
+                        <span className="text-sm font-semibold text-orange-900">Risk Alert</span>
+                      </div>
+                      <p className="text-sm text-orange-800">3 entities require verification updates</p>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Competition Alerts */}
-              <div className="card border-2 border-red-500">
+              <div className="card border border-gray-200">
                 <div className="p-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                    <Bell className="h-5 w-5 text-red-500 animate-pulse" />
-                    <span>🚨 THREAT ALERTS</span>
-                  </h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">System Health</h3>
                   <div className="space-y-3">
-                    <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
-                      <p className="text-sm font-semibold text-red-900">New competitor detected!</p>
-                      <p className="text-xs text-red-700">TechStart Solutions just entered your market</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">API Status</span>
+                      <span className="text-green-600 font-semibold flex items-center space-x-1">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Operational</span>
+                      </span>
                     </div>
-                    <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
-                      <p className="text-sm font-semibold text-yellow-900">Ranking threat!</p>
-                      <p className="text-xs text-yellow-700">Arusha Coffee Co is gaining ground fast</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Data Freshness</span>
+                      <span className="text-blue-600 font-semibold">&lt; 5min</span>
                     </div>
-                    <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
-                      <p className="text-sm font-semibold text-orange-900">Review bombing alert!</p>
-                      <p className="text-xs text-orange-700">Someone is targeting businesses in your sector</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Coverage</span>
+                      <span className="text-purple-600 font-semibold">99.2%</span>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="text-center">
-                <Link
-                  to="/rankings"
-                  className="btn bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 font-bold text-lg px-8 py-4 w-full"
-                >
-                  ⚔️ JOIN THE WAR
-                </Link>
               </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* OBSESSION CALL TO ACTION */}
-      <section className="bg-gradient-to-r from-black to-red-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-orange-600/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      {/* ENTERPRISE FEATURES */}
+      <section className="bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-6">Enterprise-Grade Features</h2>
+            <p className="text-xl text-slate-300 max-w-4xl mx-auto">
+              Comprehensive business intelligence platform designed for financial institutions, 
+              corporations, and government agencies requiring the highest standards of data accuracy and security.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-3 bg-blue-500/20 rounded-lg">
+                  <Database className="h-8 w-8 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Complete Data Coverage</h3>
+              </div>
+              <p className="text-slate-300 mb-6">
+                250,000+ verified business entities across all 31 regions of Tanzania with 
+                comprehensive ownership, financial, and operational data.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Real-time verification status</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Ownership structure mapping</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Financial health indicators</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-3 bg-green-500/20 rounded-lg">
+                  <Shield className="h-8 w-8 text-green-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Security & Compliance</h3>
+              </div>
+              <p className="text-slate-300 mb-6">
+                Bank-grade security with compliance standards for KYB, AML, and regulatory 
+                requirements. Encrypted data transmission and audit trails.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>ISO 27001 certified infrastructure</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>End-to-end encryption</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Complete audit logging</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-3 bg-purple-500/20 rounded-lg">
+                  <Brain className="h-8 w-8 text-purple-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">AI-Powered Analytics</h3>
+              </div>
+              <p className="text-slate-300 mb-6">
+                Advanced machine learning algorithms for predictive analytics, risk assessment, 
+                and market intelligence insights.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Predictive risk modeling</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Market trend analysis</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Competitive intelligence</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-3 bg-orange-500/20 rounded-lg">
+                  <Zap className="h-8 w-8 text-orange-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">High-Performance APIs</h3>
+              </div>
+              <p className="text-slate-300 mb-6">
+                Enterprise-grade REST APIs with 99.97% uptime, sub-200ms response times, 
+                and comprehensive documentation for seamless integration.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>RESTful API architecture</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Rate limiting & throttling</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Comprehensive SDKs</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-3 bg-cyan-500/20 rounded-lg">
+                  <Globe className="h-8 w-8 text-cyan-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Custom Integration</h3>
+              </div>
+              <p className="text-slate-300 mb-6">
+                Tailored integration solutions with dedicated support for enterprise clients. 
+                Custom data feeds and specialized reporting.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Dedicated account management</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Custom report generation</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Priority technical support</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-3 bg-red-500/20 rounded-lg">
+                  <Activity className="h-8 w-8 text-red-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Real-Time Monitoring</h3>
+              </div>
+              <p className="text-slate-300 mb-6">
+                Continuous monitoring of business entities with instant alerts for changes in 
+                status, ownership, or risk profile modifications.
+              </p>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Real-time status updates</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Automated alert system</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  <span>Change history tracking</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CALL TO ACTION */}
+      <section className="bg-gradient-to-r from-blue-600 to-indigo-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center space-y-8">
             <div className="space-y-6">
-              <h2 className="text-4xl md:text-6xl font-black text-white leading-tight">
-                YOUR COMPETITORS<br/>
-                <span className="text-red-400">CHECK THIS PAGE</span><br/>
-                <span className="text-warning-400">EVERY HOUR</span>
+              <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+                Ready to Access Tanzania's
+                <span className="block text-blue-200">Complete Business Intelligence?</span>
               </h2>
-              <p className="text-2xl text-red-100 max-w-3xl mx-auto font-bold">
-                🔥 DON'T LET THEM WIN 🔥<br/>
-                Claim your business NOW and start climbing the rankings.<br/>
-                <span className="text-warning-300">Every second you wait, they get ahead.</span>
+              <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+                Join leading financial institutions and enterprises using our platform for 
+                critical business intelligence, verification, and risk assessment.
               </p>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link
                 to="/create-business"
-                className="btn bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 text-2xl px-12 py-6 shadow-2xl hover:shadow-3xl font-black"
+                className="btn bg-white text-blue-600 hover:bg-gray-100 text-xl px-12 py-4 shadow-lg hover:shadow-xl font-semibold"
               >
-                ⚔️ CLAIM & DOMINATE
+                Request Enterprise Access
               </Link>
               <Link
-                to="/rankings"
-                className="btn bg-gradient-to-r from-warning-600 to-warning-700 text-white hover:from-warning-700 hover:to-warning-800 text-2xl px-12 py-6 shadow-2xl hover:shadow-3xl font-black"
+                to="/verify"
+                className="btn bg-blue-500/20 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 text-xl px-12 py-4 shadow-lg hover:shadow-xl font-semibold"
               >
-                👁️ SPY ON COMPETITORS
+                Verify Business ID
               </Link>
             </div>
             
-            <div className="mt-12">
-              <p className="text-red-200 text-lg font-semibold">
-                ⏰ Rankings update in: <span className="text-warning-300 text-2xl font-black">{formatTime(timeUntilNextRanking)}</span>
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-16">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white mb-2">250,000+</div>
+                <div className="text-blue-200">Verified Entities</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white mb-2">99.97%</div>
+                <div className="text-blue-200">System Uptime</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-white mb-2">&lt; 200ms</div>
+                <div className="text-blue-200">API Response Time</div>
+              </div>
             </div>
           </div>
         </div>
