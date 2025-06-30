@@ -40,3 +40,26 @@ continuously:
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
+
+## Deploying on a DigitalOcean Droplet
+
+To run BizIntelTZ on a fresh Ubuntu Droplet:
+
+1. Install system packages:
+   ```bash
+   sudo apt update && sudo apt install -y python3-pip nodejs npm
+   ```
+2. Clone this repository to the Droplet.
+3. Install dependencies and build the frontend:
+   ```bash
+   pip3 install -r requirements.txt
+   npm install
+   npm run build
+   ```
+4. Start the API server:
+   ```bash
+   python3 main.py
+   ```
+5. Serve the generated `dist/` directory using a web server such as Nginx.
+
+For reliability you can use `pm2` or `systemd` to keep the server running.
