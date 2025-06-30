@@ -2,8 +2,9 @@
 
 ## Description
 BizIntelTZ is a FastAPI-based platform that aggregates Tanzanian business data.
-This repository contains a minimal demo implementation with in-memory storage
-for development and testing purposes.
+The application now persists data in a local SQLite database which is
+automatically created on first run. In-memory stores are still used for quick
+access during development.
 
 ## Features
 - Advanced search & filtering
@@ -16,12 +17,15 @@ for development and testing purposes.
 - Analytics tracking
 - Media uploads
 - Lead generation
+- SQLite persistence
+- Website crawling endpoint
 - Basic OAuth2 authentication
 - Create, update & delete businesses
 
 Key endpoints include:
 - `POST /business` to create businesses
 - `POST /scrape` to generate sample data
+- `POST /crawl` to crawl external websites
 - `GET /export` to download a CSV of all businesses
 - `GET /reviews/{biz_id}` to list reviews
 - `POST /claims/approve/{index}` for claim moderation
@@ -31,6 +35,14 @@ Install dependencies and run the application:
 ```bash
 pip install -r requirements.txt
 uvicorn main:app --reload
+```
+
+### Running the crawler
+To populate the database from an external site use the `/crawl` endpoint or run
+the helper script:
+
+```bash
+python crawler.py https://example.com
 ```
 
 ## Running 24/7
