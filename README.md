@@ -38,12 +38,23 @@ uvicorn main:app --reload
 ```
 
 ### Running the crawler
-To populate the database from an external site use the `/crawl` endpoint or run
-the helper script:
+BizIntelTZ includes a lightweight crawler that scans websites for `LocalBusiness`
+schema data. You can trigger it from the `/crawl` API endpoint or run the CLI
+script locally:
 
 ```bash
-python crawler.py https://example.com
+python crawler.py https://example.com 20
 ```
+The second argument defines how many pages the crawler should visit. Discovered
+businesses are stored directly in the SQLite database.
+
+#### Crawler Dashboard
+Monitor crawler progress and database growth at `/admin/crawler` once logged in.
+
+#### Document Uploads
+Upload CSV, PDF, or PPTX files at `/admin/documents`. The document crawler can
+be triggered from that page or via the `/documents/process` endpoint to extract
+business data from CSV files.
 
 ## Running 24/7
 For production deployments, run Uvicorn without `--reload` and use a process
