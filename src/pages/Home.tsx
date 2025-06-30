@@ -866,7 +866,7 @@ const Home: React.FC = () => {
                   <div className="text-blue-200">System Uptime</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-2">< 200ms</div>
+                  <div className="text-3xl font-bold text-white mb-2">{"< 200ms"}</div>
                   <div className="text-blue-200">API Response</div>
                 </div>
                 <div className="text-center">
