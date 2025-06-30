@@ -43,7 +43,13 @@ import {
   VisualAsset,
   Course,
   Webinar,
-  Certification
+  Certification,
+  LeaderboardData,
+  MarketShareData,
+  CompetitorComparison,
+  BuzzMeterData,
+  VisibilityHeatmap,
+  CompetitiveAlert
 } from '../types'
 
 const api = axios.create({
@@ -87,6 +93,41 @@ export const getBusinessProfile = async (id: string): Promise<Business> => {
 
 export const featureBusiness = async (id: string): Promise<void> => {
   await api.post(`/admin/feature?biz_id=${id}`)
+}
+
+// Rankings & Leaderboard APIs
+export const getLeaderboardData = async (region?: string, sector?: string): Promise<LeaderboardData> => {
+  const response = await api.get('/rankings/leaderboard', { params: { region, sector } })
+  return response.data
+}
+
+export const getMarketShareData = async (sector: string, region?: string): Promise<MarketShareData> => {
+  const response = await api.get('/rankings/market-share', { params: { sector, region } })
+  return response.data
+}
+
+export const compareBusiness = async (businessIdA: string, businessIdB: string): Promise<CompetitorComparison> => {
+  const response = await api.get('/rankings/compare', { params: { business_a: businessIdA, business_b: businessIdB } })
+  return response.data
+}
+
+export const getBuzzMeterData = async (businessId: string): Promise<BuzzMeterData> => {
+  const response = await api.get(`/rankings/buzz/${businessId}`)
+  return response.data
+}
+
+export const getVisibilityHeatmap = async (region: string): Promise<VisibilityHeatmap> => {
+  const response = await api.get('/rankings/heatmap', { params: { region } })
+  return response.data
+}
+
+export const getCompetitiveAlerts = async (businessId: string): Promise<CompetitiveAlert[]> => {
+  const response = await api.get('/rankings/alerts', { params: { business_id: businessId } })
+  return response.data
+}
+
+export const subscribeToAlerts = async (businessId: string, alertTypes: string[]): Promise<void> => {
+  await api.post('/rankings/alerts/subscribe', { business_id: businessId, alert_types: alertTypes })
 }
 
 // BI ID Verification APIs

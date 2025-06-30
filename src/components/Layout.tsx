@@ -18,7 +18,8 @@ import {
   ShoppingBag,
   Globe,
   Sparkles,
-  GraduationCap
+  GraduationCap,
+  Trophy
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import AlertSystem from './AlertSystem'
@@ -65,6 +66,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 }`}
               >
                 Home
+              </Link>
+              <Link
+                to="/rankings"
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive('/rankings') 
+                    ? 'bg-primary-100 text-primary-700' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                Rankings
               </Link>
               <Link
                 to="/search"
@@ -329,6 +340,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div>
               <h4 className="font-semibold text-gray-900 mb-4">Platform</h4>
               <ul className="space-y-2 text-sm text-gray-600">
+                <li><Link to="/rankings" className="hover:text-gray-900 transition-colors">Rankings</Link></li>
                 <li><Link to="/search" className="hover:text-gray-900 transition-colors">Search Businesses</Link></li>
                 <li><Link to="/verify" className="hover:text-gray-900 transition-colors">Verify BI ID</Link></li>
                 <li><Link to="/create-business" className="hover:text-gray-900 transition-colors">Add Business</Link></li>

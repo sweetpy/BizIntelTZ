@@ -97,6 +97,210 @@ export interface BIVerificationRequest {
   purpose: string
 }
 
+// Rankings & Leaderboard Types
+export interface BusinessRanking {
+  id: string
+  name: string
+  bi_id: string
+  region: string
+  sector: string
+  digital_score: number
+  rank: number
+  previous_rank: number
+  rank_change: number
+  views_count: number
+  reviews_count: number
+  average_rating: number
+  badges: Badge[]
+  buzz_score: number
+  market_share_percentage: number
+  sentiment_score: number
+  growth_rate: number
+  premium: boolean
+  verified: boolean
+  claimed: boolean
+}
+
+export interface Badge {
+  id: string
+  name: string
+  icon: string
+  color: string
+  description: string
+  earned_date: string
+  category: 'performance' | 'growth' | 'popularity' | 'quality' | 'achievement'
+}
+
+export interface LeaderboardData {
+  overall_leaders: BusinessRanking[]
+  regional_leaders: RegionalLeaderboard[]
+  sector_leaders: SectorLeaderboard[]
+  trending_businesses: BusinessRanking[]
+  fastest_growing: BusinessRanking[]
+  most_viewed: BusinessRanking[]
+  top_rated: BusinessRanking[]
+  recent_badge_winners: BadgeWinner[]
+}
+
+export interface RegionalLeaderboard {
+  region: string
+  leaders: BusinessRanking[]
+  total_businesses: number
+  market_size: number
+}
+
+export interface SectorLeaderboard {
+  sector: string
+  leaders: BusinessRanking[]
+  total_businesses: number
+  avg_digital_score: number
+}
+
+export interface BadgeWinner {
+  business_id: string
+  business_name: string
+  badge: Badge
+  earned_date: string
+  region: string
+  sector: string
+}
+
+export interface MarketShareData {
+  sector: string
+  region?: string
+  total_market_size: number
+  businesses: MarketShareBusiness[]
+  competition_intensity: number
+}
+
+export interface MarketShareBusiness {
+  id: string
+  name: string
+  market_share: number
+  views_share: number
+  reviews_share: number
+  rank: number
+  color: string
+}
+
+export interface CompetitorComparison {
+  business_a: CompetitorProfile
+  business_b: CompetitorProfile
+  comparison_metrics: ComparisonMetric[]
+  winner: 'a' | 'b' | 'tie'
+  recommendation: string
+}
+
+export interface CompetitorProfile {
+  id: string
+  name: string
+  bi_id: string
+  region: string
+  sector: string
+  digital_score: number
+  rank: number
+  views_count: number
+  reviews_count: number
+  average_rating: number
+  badges: Badge[]
+  sentiment_score: number
+  growth_rate: number
+  market_share: number
+  strengths: string[]
+  weaknesses: string[]
+}
+
+export interface ComparisonMetric {
+  name: string
+  business_a_value: number | string
+  business_b_value: number | string
+  winner: 'a' | 'b' | 'tie'
+  difference: string
+}
+
+export interface BuzzMeterData {
+  business_id: string
+  business_name: string
+  overall_buzz: number
+  sentiment_trend: SentimentPoint[]
+  review_velocity: ReviewVelocity[]
+  social_mentions: SocialMention[]
+  buzz_factors: BuzzFactor[]
+  competitive_position: number
+}
+
+export interface SentimentPoint {
+  date: string
+  positive: number
+  neutral: number
+  negative: number
+  overall_score: number
+}
+
+export interface ReviewVelocity {
+  period: string
+  review_count: number
+  average_rating: number
+  growth_rate: number
+}
+
+export interface SocialMention {
+  platform: string
+  mentions: number
+  sentiment: number
+  reach: number
+}
+
+export interface BuzzFactor {
+  factor: string
+  impact: number
+  trend: 'up' | 'down' | 'stable'
+  description: string
+}
+
+export interface VisibilityHeatmap {
+  region: string
+  businesses: HeatmapBusiness[]
+  dominance_scores: DominanceScore[]
+  competition_density: number
+  market_opportunities: string[]
+}
+
+export interface HeatmapBusiness {
+  id: string
+  name: string
+  latitude: number
+  longitude: number
+  dominance_score: number
+  visibility_radius: number
+  color: string
+  size: number
+}
+
+export interface DominanceScore {
+  area: string
+  leader: string
+  leader_id: string
+  dominance_percentage: number
+  competition_level: 'low' | 'medium' | 'high'
+}
+
+export interface CompetitiveAlert {
+  id: string
+  business_id: string
+  type: 'rank_drop' | 'competitor_surge' | 'new_threat' | 'opportunity' | 'badge_lost'
+  title: string
+  message: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  competitor_id?: string
+  competitor_name?: string
+  rank_change?: number
+  metric_change?: number
+  action_required: boolean
+  created_at: string
+  read: boolean
+}
+
 // Market Mapping Types
 export interface MarketMappingData {
   market_size: number

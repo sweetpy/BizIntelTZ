@@ -29,6 +29,7 @@ import Marketplace from './pages/Marketplace'
 import SEOContentEngine from './pages/SEOContentEngine'
 import AIMarketingAssistant from './pages/AIMarketingAssistant'
 import SkillBuilding from './pages/SkillBuilding'
+import Rankings from './pages/Rankings'
 import Login from './pages/Login'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -40,6 +41,7 @@ function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/business/:id" element={<BusinessProfile />} />
         <Route path="/verify" element={<BIVerification />} />
+        <Route path="/rankings" element={<Rankings />} />
         <Route path="/login" element={<Login />} />
         <Route path="/create-business" element={<CreateBusiness />} />
         <Route
