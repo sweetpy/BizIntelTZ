@@ -90,12 +90,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link
                 to="/verify"
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive('/verify') 
-                    ? 'bg-primary-100 text-primary-700' 
+                  isActive('/verify')
+                    ? 'bg-primary-100 text-primary-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
                 Verify BI ID
+              </Link>
+              <Link
+                to="/features"
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive('/features')
+                    ? 'bg-primary-100 text-primary-700'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                Features
               </Link>
               
               {/* Intelligence Dropdown */}
@@ -343,6 +353,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <li><Link to="/rankings" className="hover:text-gray-900 transition-colors">Rankings</Link></li>
                 <li><Link to="/search" className="hover:text-gray-900 transition-colors">Search Businesses</Link></li>
                 <li><Link to="/verify" className="hover:text-gray-900 transition-colors">Verify BI ID</Link></li>
+                <li><Link to="/features" className="hover:text-gray-900 transition-colors">All Features</Link></li>
                 <li><Link to="/create-business" className="hover:text-gray-900 transition-colors">Add Business</Link></li>
               </ul>
             </div>
