@@ -465,3 +465,15 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=5000)
 
+from fastapi import Request
+import subprocess
+
+@app.post("/webhook")
+async def github_webhook(request: Request):
+    payload = await request.json()
+    # Optional: check branch, repo, or secret if added
+    try:
+        subprocess.run(["/var/www/BizIntelTZ/deploy.sh"], check=True)
+        return {"status": "Deployed"}
+    except Exception as e:
+        return {"error": str(e)}
