@@ -35,10 +35,20 @@ function generateBIID() {
   return `BIZ-TZ-${date}-${random}`;
 }
 
-// Authentication endpoint
+// Authentication endpoint - Fixed to handle both JSON and form data
 app.post('/token', (req, res) => {
   console.log('Login attempt:', req.body);
-  const { username, password } = req.body;
+  let username, password;
+  
+  // Handle both form-urlencoded and JSON
+  if (req.body.username && req.body.password) {
+    username = req.body.username;
+    password = req.body.password;
+  } else if (req.body.get) {
+    // Handle URLSearchParams
+    username = req.body.get('username');
+    password = req.body.get('password');
+  }
   
   const user = fake_users_db[username];
   if (user && user.password === password) {
@@ -326,12 +336,12 @@ app.get('/admin', (req, res) => {
   });
 });
 
-// Rankings/Leaderboard endpoint
+// Rankings/Leaderboard endpoint with rich mock data
 app.get('/rankings/leaderboard', (req, res) => {
-  const businessList = Object.values(businesses);
+  let businessList = Object.values(businesses);
   
   if (businessList.length === 0) {
-    // Create sample businesses
+    // Create comprehensive sample businesses for demo
     const sampleBusinesses = [
       {
         id: "sample-1",
@@ -365,16 +375,39 @@ app.get('/rankings/leaderboard', (req, res) => {
         premium: false,
         verified: true,
         claimed: true
+      },
+      {
+        id: "sample-4",
+        name: "Serengeti Safari Lodge",
+        bi_id: generateBIID(),
+        region: "Arusha",
+        sector: "Tourism",
+        digital_score: 82,
+        premium: true,
+        verified: false,
+        claimed: true
+      },
+      {
+        id: "sample-5",
+        name: "Mwanza Fish Market",
+        bi_id: generateBIID(),
+        region: "Mwanza",
+        sector: "Trade",
+        digital_score: 78,
+        premium: false,
+        verified: true,
+        claimed: false
       }
     ];
     
     sampleBusinesses.forEach(biz => {
       businesses[biz.id] = biz;
     });
+    businessList = sampleBusinesses;
   }
   
-  // Mock ranking data
-  const rankedBusinesses = Object.values(businesses).slice(0, 10).map((biz, i) => ({
+  // Mock ranking data with comprehensive details
+  const rankedBusinesses = businessList.slice(0, 10).map((biz, i) => ({
     id: biz.id,
     name: biz.name,
     bi_id: biz.bi_id,
@@ -410,7 +443,7 @@ app.get('/rankings/leaderboard', (req, res) => {
         business_id: "sample-1",
         business_name: "TechHub Dar es Salaam",
         badge: {
-          id: "top-rated",
+          id: "innovation-leader",
           name: "Innovation Leader",
           icon: "star",
           color: "#f59e0b",
@@ -421,6 +454,22 @@ app.get('/rankings/leaderboard', (req, res) => {
         earned_date: new Date().toISOString(),
         region: "Dar es Salaam",
         sector: "Technology"
+      },
+      {
+        business_id: "sample-2",
+        business_name: "Kilimanjaro Coffee Co",
+        badge: {
+          id: "quality-excellence",
+          name: "Quality Excellence",
+          icon: "award",
+          color: "#10b981",
+          description: "Exceptional product quality standards",
+          earned_date: new Date().toISOString(),
+          category: "quality"
+        },
+        earned_date: new Date().toISOString(),
+        region: "Arusha",
+        sector: "Agriculture"
       }
     ]
   });

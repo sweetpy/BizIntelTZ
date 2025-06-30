@@ -37,30 +37,65 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      // Use URLSearchParams to create application/x-www-form-urlencoded data
-      const formData = new URLSearchParams()
-      formData.append('username', username)
-      formData.append('password', password)
-
-      const response = await fetch('/api/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+      console.log('Attempting login with:', username) // Debug log
+      
+      // Try multiple formats to ensure compatibility
+      const loginAttempts = [
+        // Format 1: URLSearchParams (form-encoded)
+        () => {
+          const formData = new URLSearchParams()
+          formData.append('username', username)
+          formData.append('password', password)
+          return fetch('/api/token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: formData,
+          })
         },
-        body: formData,
-      })
+        // Format 2: JSON
+        () => {
+          return fetch('/api/token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+          })
+        }
+      ]
 
-      if (response.ok) {
+      let response
+      let success = false
+
+      for (const attempt of loginAttempts) {
+        try {
+          response = await attempt()
+          if (response.ok) {
+            success = true
+            break
+          }
+        } catch (err) {
+          console.log('Login attempt failed, trying next format...', err)
+          continue
+        }
+      }
+
+      if (success && response && response.ok) {
         const data = await response.json()
         const newUser = { username, token: data.access_token }
         setUser(newUser)
         localStorage.setItem('user', JSON.stringify(newUser))
+        console.log('Login successful!') // Debug log
         return true
       }
       
       // Log the response for debugging
-      const errorText = await response.text()
-      console.error('Login failed:', response.status, errorText)
+      if (response) {
+        const errorText = await response.text()
+        console.error('Login failed:', response.status, errorText)
+      }
       return false
     } catch (error) {
       console.error('Login error:', error)

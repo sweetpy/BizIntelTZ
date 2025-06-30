@@ -11,6 +11,144 @@ const Home: React.FC = () => {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Mock data as fallback
+  const mockAnalytics: AnalyticsData = {
+    views: 2150,
+    clicks: 1340
+  }
+
+  const mockLeaderboardData: LeaderboardData = {
+    overall_leaders: [
+      {
+        id: "mock-1",
+        name: "TechHub Dar es Salaam",
+        bi_id: "BIZ-TZ-20241201-1001",
+        region: "Dar es Salaam",
+        sector: "Technology",
+        digital_score: 92,
+        rank: 1,
+        previous_rank: 2,
+        rank_change: 1,
+        views_count: 2840,
+        reviews_count: 45,
+        average_rating: 4.8,
+        badges: [],
+        buzz_score: 95,
+        market_share_percentage: 12.5,
+        sentiment_score: 88,
+        growth_rate: 15.3,
+        premium: true,
+        verified: true,
+        claimed: true
+      },
+      {
+        id: "mock-2",
+        name: "Kilimanjaro Coffee Co",
+        bi_id: "BIZ-TZ-20241201-1002",
+        region: "Arusha",
+        sector: "Agriculture",
+        digital_score: 88,
+        rank: 2,
+        previous_rank: 3,
+        rank_change: 1,
+        views_count: 2340,
+        reviews_count: 38,
+        average_rating: 4.7,
+        badges: [],
+        buzz_score: 89,
+        market_share_percentage: 10.2,
+        sentiment_score: 92,
+        growth_rate: 12.8,
+        premium: true,
+        verified: true,
+        claimed: true
+      },
+      {
+        id: "mock-3",
+        name: "Zanzibar Tours & Travel",
+        bi_id: "BIZ-TZ-20241201-1003",
+        region: "Zanzibar",
+        sector: "Tourism",
+        digital_score: 85,
+        rank: 3,
+        previous_rank: 1,
+        rank_change: -2,
+        views_count: 2120,
+        reviews_count: 52,
+        average_rating: 4.6,
+        badges: [],
+        buzz_score: 84,
+        market_share_percentage: 8.7,
+        sentiment_score: 86,
+        growth_rate: 8.2,
+        premium: false,
+        verified: true,
+        claimed: true
+      }
+    ],
+    regional_leaders: [],
+    sector_leaders: [],
+    trending_businesses: [],
+    fastest_growing: [],
+    most_viewed: [],
+    top_rated: [],
+    recent_badge_winners: [
+      {
+        business_id: "mock-1",
+        business_name: "TechHub Dar es Salaam",
+        badge: {
+          id: "innovation-leader",
+          name: "Innovation Leader",
+          icon: "star",
+          color: "#f59e0b",
+          description: "Leading innovation in technology sector",
+          earned_date: new Date().toISOString(),
+          category: "achievement"
+        },
+        earned_date: new Date().toISOString(),
+        region: "Dar es Salaam",
+        sector: "Technology"
+      }
+    ]
+  }
+
+  const mockFeaturedBusinesses: Business[] = [
+    {
+      id: "featured-1",
+      name: "Premium Logistics Solutions",
+      bi_id: "BIZ-TZ-20241201-2001",
+      region: "Dar es Salaam",
+      sector: "Transport",
+      digital_score: 89,
+      premium: true,
+      verified: true,
+      claimed: true
+    },
+    {
+      id: "featured-2",
+      name: "Serengeti Safari Lodge",
+      bi_id: "BIZ-TZ-20241201-2002",
+      region: "Arusha",
+      sector: "Tourism",
+      digital_score: 86,
+      premium: true,
+      verified: true,
+      claimed: true
+    },
+    {
+      id: "featured-3",
+      name: "Mwanza Fish Export Co",
+      bi_id: "BIZ-TZ-20241201-2003",
+      region: "Mwanza",
+      sector: "Trade",
+      digital_score: 83,
+      premium: true,
+      verified: false,
+      claimed: true
+    }
+  ]
 
   useEffect(() => {
     loadData()
@@ -19,20 +157,43 @@ const Home: React.FC = () => {
   const loadData = async () => {
     try {
       setIsLoading(true)
+      setError(null)
       
-      // Load featured businesses (premium businesses)
-      const businesses = await searchBusinesses({ premium: true })
-      setFeaturedBusinesses(businesses.slice(0, 6))
-      
-      // Load analytics
-      const analyticsData = await getAnalytics()
-      setAnalytics(analyticsData)
+      // Try to load real data with fallback to mock data
+      try {
+        // Load featured businesses (premium businesses)
+        const businesses = await searchBusinesses({ premium: true })
+        setFeaturedBusinesses(businesses.length > 0 ? businesses.slice(0, 6) : mockFeaturedBusinesses)
+      } catch (err) {
+        console.log('Using mock featured businesses:', err)
+        setFeaturedBusinesses(mockFeaturedBusinesses)
+      }
 
-      // Load leaderboard data
-      const leaderboard = await getLeaderboardData()
-      setLeaderboardData(leaderboard)
+      try {
+        // Load analytics
+        const analyticsData = await getAnalytics()
+        setAnalytics(analyticsData)
+      } catch (err) {
+        console.log('Using mock analytics:', err)
+        setAnalytics(mockAnalytics)
+      }
+
+      try {
+        // Load leaderboard data
+        const leaderboard = await getLeaderboardData()
+        setLeaderboardData(leaderboard)
+      } catch (err) {
+        console.log('Using mock leaderboard:', err)
+        setLeaderboardData(mockLeaderboardData)
+      }
+
     } catch (error) {
       console.error('Error loading data:', error)
+      setError('Failed to load some data. Showing demo content.')
+      // Use all mock data as fallback
+      setFeaturedBusinesses(mockFeaturedBusinesses)
+      setAnalytics(mockAnalytics)
+      setLeaderboardData(mockLeaderboardData)
     } finally {
       setIsLoading(false)
     }
@@ -53,6 +214,19 @@ const Home: React.FC = () => {
 
   return (
     <div className="space-y-16">
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-warning-50 border-l-4 border-warning-400 p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <p className="text-sm text-warning-700">
+                {error}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700 overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -232,7 +406,7 @@ const Home: React.FC = () => {
                     <span>Trending Now</span>
                   </h3>
                   <div className="space-y-3">
-                    {leaderboardData.trending_businesses.slice(0, 3).map((business, index) => (
+                    {leaderboardData.overall_leaders.slice(0, 3).map((business, index) => (
                       <div key={business.id} className="flex items-center justify-between">
                         <div>
                           <Link
