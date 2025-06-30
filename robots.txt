@@ -1,0 +1,22 @@
+# BizIntelTZ - Tanzania's Premier Business Intelligence Platform
+# robots.txt
+
+User-agent: *
+Allow: /
+
+# Pages that should not be indexed
+Disallow: /login
+Disallow: /admin
+Disallow: /admin/*
+
+# Allow search engines to crawl these important sections
+Allow: /verify
+Allow: /business
+Allow: /search
+Allow: /rankings
+
+# Sitemap location (uncomment when sitemap is generated)
+# Sitemap: https://bizinteltz.com/sitemap.xml
+
+# Crawl delay for all bots
+Crawl-delay: 10
