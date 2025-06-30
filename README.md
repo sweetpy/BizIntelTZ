@@ -56,9 +56,9 @@ To run BizIntelTZ on a fresh Ubuntu Droplet:
    npm install
    npm run build
    ```
-4. Start the API server:
+4. Start the API server with Uvicorn:
    ```bash
-   python3 main.py
+   uvicorn main:app --host 0.0.0.0 --port 8000
    ```
 5. Serve the generated `dist/` directory using a web server such as Nginx.
 
